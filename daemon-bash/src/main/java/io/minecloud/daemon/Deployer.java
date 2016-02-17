@@ -88,7 +88,7 @@ public final class Deployer {
             put("PRIVATE_IP", server.node().privateIp());
         }};
 
-        startApplication(processScript("/mnt/minecloud/server/bukkit/" + server.type().mod() + "/init.sh", env), server.name());
+        startApplication(processScript("/mnt/minecloud/server/bukkit/" + server.type().mod() + "/init.sh", env), server.name(), env);
         repository.save(server);
         MineCloud.logger().info("Started server " + server.name() + " with container id " + server.containerId());
     }
@@ -121,7 +121,7 @@ public final class Deployer {
             put("bungee_id", node.publicIp());
         }};
 
-        startApplication(processScript("/mnt/minecloud/scripts/bungee-init.sh", env), "bungee");
+        startApplication(processScript("/mnt/minecloud/scripts/bungee-init.sh", env), "bungee", env);
 
         bungee.setNetwork(network);
         bungee.setNode(node);
@@ -201,7 +201,7 @@ public final class Deployer {
         return script;
     }
 
-    private static void startApplication(List<String> startScript, String name) {
+    private static void startApplication(List<String> startScript, String name, Map<String, String> env) {
         File runDir = new File("/var/minecloud/" + name);
 
         if (runDir.exists()) {
@@ -215,7 +215,13 @@ public final class Deployer {
             Files.write(Paths.get(runDir.getAbsolutePath(), "started.ts"), Arrays.asList(String.valueOf(System.currentTimeMillis())));
             new File(runDir, "init.sh").setExecutable(true);
 
-            Process process = new ProcessBuilder()
+            //BlueFusion Start - Add environment variables
+            ProcessBuilder process = new ProcessBuilder();
+            env.forEach((key, value) -> {
+            	process.environment().put(key, env.get(key));
+            });
+            //BlueFusion12 End
+            process
                     .directory(runDir)
                     .redirectErrorStream(true)
                     .command("/usr/bin/screen", "-dm", "-S", name, "sh", "init.sh")
