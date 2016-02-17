@@ -119,6 +119,10 @@ public class Network extends MongoEntity {
     public List<Server> servers() {
         return ((ServerRepository) MineCloud.instance().mongo().repositoryBy(Server.class)).serversFor(this);
     }
+    
+    public List<Bungee> bungees() {
+        return ((BungeeRepository) MineCloud.instance().mongo().repositoryBy(Bungee.class)).serversFor(this);
+    }
 
     public int serversOnline() {
         return (int) MineCloud.instance().mongo().repositoryBy(Server.class)

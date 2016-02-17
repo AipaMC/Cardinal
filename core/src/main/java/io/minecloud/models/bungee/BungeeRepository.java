@@ -16,6 +16,10 @@
 package io.minecloud.models.bungee;
 
 import io.minecloud.db.mongo.AbstractMongoRepository;
+import io.minecloud.models.network.Network;
+
+import java.util.List;
+
 import org.mongodb.morphia.Datastore;
 
 public class BungeeRepository extends AbstractMongoRepository<Bungee> {
@@ -25,5 +29,10 @@ public class BungeeRepository extends AbstractMongoRepository<Bungee> {
 
     public static BungeeRepository create(Datastore datastore) {
         return new BungeeRepository(datastore);
+    }
+    
+    public List<Bungee> serversFor(Network network) {
+        return find(createQuery().field("network").equal(network))
+                .asList();
     }
 }

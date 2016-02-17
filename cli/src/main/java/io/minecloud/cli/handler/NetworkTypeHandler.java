@@ -18,10 +18,12 @@ package io.minecloud.cli.handler;
 import asg.cliche.Command;
 import asg.cliche.Param;
 import io.minecloud.MineCloud;
+import io.minecloud.models.bungee.Bungee;
 import io.minecloud.models.bungee.type.BungeeType;
 import io.minecloud.models.network.Network;
 import io.minecloud.models.network.server.ServerNetworkMetadata;
 import io.minecloud.models.nodes.Node;
+import io.minecloud.models.server.Server;
 import io.minecloud.models.server.type.ServerType;
 
 import java.util.*;
@@ -188,6 +190,20 @@ public class NetworkTypeHandler extends AbstractHandler {
 
         nodes.remove(node);
         return nodeName + " has been removed from the network!";
+    }
+    
+    @Command
+    public String restartAll() {
+    	//Servers First
+    	type.servers().forEach(server -> {
+    		MineCloud.instance().mongo().repositoryBy(Server.class).delete(server);
+    	});
+    	//Then Bungees
+    	type.bungees().forEach(bungee -> {
+    		MineCloud.instance().mongo().repositoryBy(Bungee.class).delete(bungee);
+    	});
+    	
+    	return "Restarting all servers and bungees...";
     }
 
     @Command
