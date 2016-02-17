@@ -215,12 +215,10 @@ public final class Deployer {
             Files.write(Paths.get(runDir.getAbsolutePath(), "started.ts"), Arrays.asList(String.valueOf(System.currentTimeMillis())));
             new File(runDir, "init.sh").setExecutable(true);
 
-            //BlueFusion Start - Add environment variables
             ProcessBuilder process = new ProcessBuilder();
             env.forEach((key, value) -> {
             	process.environment().put(key, env.get(key));
             });
-            //BlueFusion12 End
             process
                     .directory(runDir)
                     .redirectErrorStream(true)
