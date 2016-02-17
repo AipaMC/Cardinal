@@ -24,10 +24,8 @@ import io.minecloud.db.redis.pubsub.SimpleRedisChannel;
 import io.minecloud.models.nodes.type.NodeType;
 import io.minecloud.models.plugins.Plugin;
 import io.minecloud.models.server.World;
-import lombok.EqualsAndHashCode;
 import lombok.Setter;
 import org.mongodb.morphia.annotations.Entity;
-import org.mongodb.morphia.annotations.Property;
 import org.mongodb.morphia.annotations.Reference;
 
 import java.io.IOException;
@@ -115,15 +113,12 @@ public class ServerType extends MongoEntity {
             redis.addChannel(SimpleRedisChannel.create("teleport-type", redis));
         }
 
-        MessageOutputStream mos = new MessageOutputStream();
-
-        try {
+        try (MessageOutputStream mos = new MessageOutputStream()){
             mos.writeString(player);
             mos.writeString(name());
+            redis.channelBy("teleport-type").publish(mos.toMessage());
         } catch (IOException ex) {
             throw new MineCloudException("Could not encode teleport message", ex);
         }
-
-        redis.channelBy("teleport-type").publish(mos.toMessage());
     }
 }

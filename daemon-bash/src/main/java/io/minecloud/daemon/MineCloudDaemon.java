@@ -357,11 +357,11 @@ public class MineCloudDaemon {
         return redis;
     }
 
-    private List<File> files(File directory) {
+    /*private List<File> files(File directory) {
         List<File> files = new ArrayList<>();
         File[] dirFiles = directory.listFiles();
         files.addAll(Arrays.asList(dirFiles));
 
         return files;
-    }
+    }*/
 }

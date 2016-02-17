@@ -16,7 +16,6 @@
 package io.minecloud.models.server;
 
 import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
 import lombok.Setter;
 
 @AllArgsConstructor

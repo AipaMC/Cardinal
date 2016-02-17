@@ -237,7 +237,7 @@ public final class Deployer {
         }
 
         public Container() {
-            this.value = null;
+            this(null);
         }
 
         public T get() {

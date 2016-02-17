@@ -19,7 +19,6 @@ import io.minecloud.MineCloudException;
 import io.minecloud.db.redis.RedisDatabase;
 import io.minecloud.db.redis.msg.Message;
 
-import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 

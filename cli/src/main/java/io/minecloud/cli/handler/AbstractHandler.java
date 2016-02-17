@@ -25,7 +25,6 @@ import io.minecloud.models.server.World;
 import lombok.Setter;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -58,7 +57,10 @@ public abstract class AbstractHandler {
         }
 
         System.out.print("Chosen option: ");
-        int option = new Scanner(System.in).nextInt();
+        int option = -1;
+        try (Scanner scan = new Scanner(System.in)) {
+        	option = scan.nextInt();
+        }
 
         if (option < 0 || option >= options.size()) {
             System.out.println("\nInvalid option! Trying again...\n\n");

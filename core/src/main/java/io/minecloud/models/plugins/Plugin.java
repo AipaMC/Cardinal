@@ -16,7 +16,6 @@
 package io.minecloud.models.plugins;
 
 import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
 import lombok.Setter;
 import org.mongodb.morphia.annotations.Reference;
 

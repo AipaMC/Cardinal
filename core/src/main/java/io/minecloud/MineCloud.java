@@ -35,7 +35,6 @@ import io.minecloud.models.server.ServerRepository;
 import io.minecloud.models.server.type.ServerType;
 import io.minecloud.models.server.type.ServerTypeRepository;
 import lombok.Setter;
-import org.mongodb.morphia.logging.MorphiaLoggerFactory;
 import org.mongodb.morphia.logging.SilentLogger;
 
 import java.io.File;
@@ -84,68 +83,69 @@ public final class MineCloud {
     }
 
     public static void runSetup(Properties properties, File file) throws IOException {
-        Scanner scanner = new Scanner(System.in);
-        String[] hosts;
-        String database;
-        String username;
-        String password;
+    	try (Scanner scanner = new Scanner(System.in)){
+            String[] hosts;
+            String database;
+            String username;
+            String password;
 
-        logger().info("I see you either have your details mis-configured or there is none, " +
-                "we will proceed with performing the initial setup!");
+            logger().info("I see you either have your details mis-configured or there is none, " +
+                    "we will proceed with performing the initial setup!");
 
-        System.out.print("Please enter the hosts for MongoDB (separated by commas): ");
-        hosts = scanner.nextLine().split(",");
+            System.out.print("Please enter the hosts for MongoDB (separated by commas): ");
+            hosts = scanner.nextLine().split(",");
 
-        System.out.println();
-        System.out.print("Please enter the database name: ");
-        database = scanner.nextLine();
+            System.out.println();
+            System.out.print("Please enter the database name: ");
+            database = scanner.nextLine();
 
-        System.out.println();
-        System.out.print("Please enter the username for auth.:");
-        username = scanner.nextLine();
+            System.out.println();
+            System.out.print("Please enter the username for auth.:");
+            username = scanner.nextLine();
 
-        System.out.println();
-        System.out.print("Please enter the password for " + username + ": ");
-        password = scanner.nextLine();
+            System.out.println();
+            System.out.print("Please enter the password for " + username + ": ");
+            password = scanner.nextLine();
 
-        StringBuilder formattedHosts = new StringBuilder();
+            StringBuilder formattedHosts = new StringBuilder();
 
-        for (String s : hosts) {
-            formattedHosts.append(s)
-                    .append(";");
-        }
+            for (String s : hosts) {
+                formattedHosts.append(s)
+                        .append(";");
+            }
 
-        properties.setProperty("mongo-hosts", formattedHosts.toString());
-        properties.setProperty("mongo-database", database);
-        properties.setProperty("mongo-username", username);
-        properties.setProperty("mongo-password", password);
+            properties.setProperty("mongo-hosts", formattedHosts.toString());
+            properties.setProperty("mongo-database", database);
+            properties.setProperty("mongo-username", username);
+            properties.setProperty("mongo-password", password);
 
-        Credentials mongo = new Credentials(hosts, username, password.toCharArray(), database);
-        MineCloud.instance().initiateMongo(mongo);
+            Credentials mongo = new Credentials(hosts, username, password.toCharArray(), database);
+            MineCloud.instance().initiateMongo(mongo);
 
-        System.out.println();
-        System.out.print("Great! Please enter the host for the Redis server: ");
-        hosts = new String[] {scanner.nextLine()};
+            System.out.println();
+            System.out.print("Great! Please enter the host for the Redis server: ");
+            hosts = new String[] {scanner.nextLine()};
 
-        System.out.println();
-        System.out.print("Please enter the password for " + username + ":");
+            System.out.println();
+            System.out.print("Please enter the password for " + username + ":");
 
-        password = scanner.nextLine();
+            password = scanner.nextLine();
 
-        properties.setProperty("redis-host", hosts[0]);
-        properties.setProperty("redis-password", password);
+            properties.setProperty("redis-host", hosts[0]);
+            properties.setProperty("redis-password", password);
 
-        Credentials redis = new Credentials(hosts, "", password.toCharArray());
-        MineCloud.instance().initiateRedis(redis);
+            Credentials redis = new Credentials(hosts, "", password.toCharArray());
+            MineCloud.instance().initiateRedis(redis);
 
-        System.out.print("Lastly, please enter the name of this node: ");
-        properties.setProperty("node-name", scanner.nextLine());
+            System.out.print("Lastly, please enter the name of this node: ");
+            properties.setProperty("node-name", scanner.nextLine());
 
 
-        logger().info("Finished setup!");
-        logger().info("You can modify the database details in " + file.getAbsolutePath());
+            logger().info("Finished setup!");
+            logger().info("You can modify the database details in " + file.getAbsolutePath());
 
-        properties.store(new FileOutputStream(file), "");
+            properties.store(new FileOutputStream(file), "");
+    	}
     }
 
     public MongoDatabase mongo() {

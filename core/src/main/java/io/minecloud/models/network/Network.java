@@ -29,7 +29,6 @@ import io.minecloud.models.server.Server;
 import io.minecloud.models.server.ServerMetadata;
 import io.minecloud.models.server.ServerRepository;
 import io.minecloud.models.server.type.ServerType;
-import lombok.EqualsAndHashCode;
 import lombok.Setter;
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Reference;
@@ -44,7 +43,7 @@ import java.util.logging.Level;
 public class Network extends MongoEntity {
     @Setter
     private List<ServerNetworkMetadata> serverMetadata;
-    @Setter
+    
     private Map<String, Integer> bungees;
     @Setter
     @Reference(lazy = true)
@@ -55,26 +54,25 @@ public class Network extends MongoEntity {
             throw new IllegalArgumentException("Cannot deploy " + type + " on network; is not a valid network bungee type!");
         }
 
-        MessageOutputStream os = new MessageOutputStream();
+        
 
-        try {
+        try (MessageOutputStream os = new MessageOutputStream()){
             os.writeString(node.name());
             os.writeString(name());
             os.writeString(type.name());
+            MineCloud.instance().redis().channelBy("bungee-create").publish(os.toMessage());
         } catch (IOException e) {
             MineCloud.logger().log(Level.SEVERE, "Encountered an odd exception whilst encoding a message", e);
             return;
         }
-
-        MineCloud.instance().redis().channelBy("bungee-create").publish(os.toMessage());
     }
 
     public Node deployServer(ServerType type, ServerMetadata... metadata) {
         NodeRepository nodeRepo = MineCloud.instance().mongo().repositoryBy(Node.class);
-        MessageOutputStream os = new MessageOutputStream();
+
         Node node = nodeRepo.findNode(this, type.preferredNode(), type.dedicatedRam());
 
-        try {
+        try (MessageOutputStream os = new MessageOutputStream()){
             os.writeString(node.name());
             os.writeString(name());
             os.writeString(type.name());
@@ -84,12 +82,10 @@ public class Network extends MongoEntity {
                 os.writeString(md.key());
                 os.writeString(md.value());
             }
+            MineCloud.instance().redis().channelBy("server-create").publish(os.toMessage());
         } catch (IOException e) {
             MineCloud.logger().log(Level.SEVERE, "Encountered an odd exception whilst encoding a message", e);
-            return node;
         }
-
-        MineCloud.instance().redis().channelBy("server-create").publish(os.toMessage());
         return node;
     }
 

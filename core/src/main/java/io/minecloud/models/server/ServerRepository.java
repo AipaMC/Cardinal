@@ -18,7 +18,6 @@ package io.minecloud.models.server;
 import com.mongodb.BasicDBObject;
 import io.minecloud.db.mongo.AbstractMongoRepository;
 import io.minecloud.models.network.Network;
-import io.minecloud.models.player.PlayerData;
 import io.minecloud.models.server.type.ServerType;
 import org.mongodb.morphia.Datastore;
 

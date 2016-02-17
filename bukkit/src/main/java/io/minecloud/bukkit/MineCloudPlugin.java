@@ -149,9 +149,7 @@ public class MineCloudPlugin extends JavaPlugin {
             Bukkit.getPluginManager().enablePlugin(plugin);
         }
 
-        try {
-            MessageOutputStream os = new MessageOutputStream();
-
+        try (MessageOutputStream os = new MessageOutputStream()) {
             os.writeString(server().entityId());
 
             redis.channelBy("server-start-notif").publish(os.toMessage());
@@ -228,9 +226,7 @@ public class MineCloudPlugin extends JavaPlugin {
 
         mongo.repositoryBy(Server.class).deleteById(serverId);
 
-        try {
-            MessageOutputStream os = new MessageOutputStream();
-
+        try (MessageOutputStream os = new MessageOutputStream()) {
             os.writeString(serverId);
 
             redis.channelBy("server-shutdown-notif").publish(os.toMessage());

@@ -24,7 +24,6 @@ import io.minecloud.db.mongo.model.MongoEntity;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
 
-import java.net.UnknownHostException;
 import java.util.*;
 import java.util.logging.Level;
 
@@ -99,7 +98,7 @@ public class MongoDatabase implements Database {
             client.setWriteConcern(WriteConcern.REPLICA_ACKNOWLEDGED);
             client.setReadPreference(ReadPreference.nearest());
         }
-
+        
         database = client.getDB(credentials.database());
         morphia = new Morphia();
         datastore = morphia.createDatastore(client, credentials.database());
