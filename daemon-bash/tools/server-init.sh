@@ -38,4 +38,4 @@ sed -i "s/maxplayers/$MAX_PLAYERS/" server.properties
 sed -i "s/port/$PORT" server.properties
 sed -i "s/privateip/$PRIVATE_IP" server.properties
 
-java -jar server.jar
+java -Xmx${DEDICATED_RAM}M -jar server.jar

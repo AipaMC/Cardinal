@@ -24,4 +24,4 @@ mkdir plugins
 cp -r /mnt/minecloud/server/bungee/* .
 cp -r /mnt/minecloud/plugins/minecloud-bungee/latest/* plugins/
 
-java -jar bungee.jar
+java -Xmx${DEDICATED_RAM}M -jar bungee.jar
