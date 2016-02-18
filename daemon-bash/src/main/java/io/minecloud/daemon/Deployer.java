@@ -37,6 +37,8 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 
+import org.apache.commons.io.FileUtils;
+
 public final class Deployer {
     public static final AtomicInteger PORT_COUNTER = new AtomicInteger(32812);
 
@@ -205,7 +207,12 @@ public final class Deployer {
         File runDir = new File("/var/minecloud/" + name);
 
         if (runDir.exists()) {
-            runDir.delete();
+            //runDir.delete();
+        	try {
+				FileUtils.deleteDirectory(runDir);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
         }
 
         runDir.mkdirs();
