@@ -18,7 +18,6 @@ echo "Updating cli..."
 cp cli/target/cli-1.0.jar /opt/minecloud/cli/bin/cli.jar
 
 echo "Updating plugins..."
-cp cli/target/cli-1.0.jar /opt/minecloud/cli/bin/cli.jar
 cp bukkit/target/bukkit-1.0.jar /mnt/minecloud/plugins/minecloud-bukkit/latest/minecloud-bukkit.jar
 cp bungee/target/bungee-1.0.jar /mnt/minecloud/plugins/minecloud-bungee/latest/minecloud-bungee.jar
 
