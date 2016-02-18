@@ -1,5 +1,8 @@
 #!/bin/bash
 
+echo "Updating Repo..."
+git pull
+
 echo "Building from source..."
 mvn clean package
 echo "Build complete... applying updates"
