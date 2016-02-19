@@ -85,6 +85,7 @@ public class Controller {
                             int onlinePlayers = servers.stream()
                                     .flatMapToInt((s) -> IntStream.of(s.onlinePlayers().size()))
                                     .sum();
+                            //If we are at > 75% of current capacity, launch more servers
                             int scaledServers = onlinePlayers > (space * 0.75) ?
                                     (int) Math.floor(onlinePlayers / (space * 0.75)) + 1 :
                                     0;
@@ -94,6 +95,7 @@ public class Controller {
                                 requiredServers = 0;
                             }
 
+                            //Don't go over the maximum server count
                             if ((scaledServers + requiredServers + servers.size()) > metadata.maximumAmount()) {
                                 requiredServers = metadata.maximumAmount() - servers.size();
                                 scaledServers = 0;
@@ -101,16 +103,26 @@ public class Controller {
 
                             if (requiredServers > 0 || scaledServers > 0) {
                                 IntStream.range(0, requiredServers + scaledServers)
-                                        .forEach((i) -> {
-                                            try {
-                                                Thread.sleep(200L);
-                                            } catch (InterruptedException ignored) {
-                                            }
-
-                                            ServerType type = metadata.type();
-                                            MineCloud.logger().info("Sent deploy message to " + network.deployServer(type).name() +
-                                                    " for server type " + type.name() + " on " + network.name());
-                                        });
+                                .forEach((i) -> {
+                                	try {
+                                		Thread.sleep(200L);
+                                	} catch (InterruptedException ignored) {
+                                	}
+                                	
+                                	ServerType type = metadata.type();
+                                	MineCloud.logger().info("Sent deploy message to " + network.deployServer(type).name() +
+                                			" for server type " + type.name() + " on " + network.name());
+                                });
+                            } else if (metadata.type().defaultServer() && serversOnline > metadata.minimumAmount()){
+                            	//Check for empty default servers to remove
+                            	for (Server server : servers) {
+                            		//Make sure we don't go below the minimum amount
+                            		if (serversOnline >= metadata.minimumAmount() 
+                            				&& server.onlinePlayers().size() == 0) {
+                            			mongo.repositoryBy(Server.class).delete(server);
+                            			serversOnline--;
+                            		}
+                            	}
                             }
                         });
                     });
