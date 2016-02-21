@@ -101,6 +101,12 @@ public class ServerTypeHandler extends AbstractHandler {
         type.setDefaultServer(def);
         return "Set default server value to " + def;
     }
+    
+    @Command
+    public String randomDefaultWorld(@Param(name = "value") boolean def) {
+        type.setRandomDefaultWorld(def);
+        return "Set random default world value to " + def;
+    }
 
     @Command
     public String addPlugin(@Param(name = "plugin-name") String pluginName, @Param(name = "version") String version) {

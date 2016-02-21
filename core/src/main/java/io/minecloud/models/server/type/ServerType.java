@@ -31,6 +31,7 @@ import org.mongodb.morphia.annotations.Reference;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 @Entity(value = "server-types", noClassnameStored = true)
 public class ServerType extends MongoEntity {
@@ -53,6 +54,9 @@ public class ServerType extends MongoEntity {
     private List<World> worlds;
     @Setter
     private int timeOut = 45; // 45 seconds is the default timeout, allowed for overwriting
+    /** If true, each time the server starts we will choose a random world to use as default */
+    @Setter
+    private boolean randomDefaultWorld = false; //False is the default value
 
     public String name() {
         return entityId();
@@ -77,6 +81,10 @@ public class ServerType extends MongoEntity {
     public boolean defaultServer() {
         return defaultServer;
     }
+    
+    public boolean randomDefaultWorld() {
+    	return randomDefaultWorld;
+    }
 
     public List<Plugin> plugins() {
         if (plugins == null) {
@@ -87,7 +95,18 @@ public class ServerType extends MongoEntity {
     }
 
     public World defaultWorld() {
-        return defaultWorld;
+    	//If random default worlds is on, choose one of the worlds registered
+    	//at random
+    	if (randomDefaultWorld) {
+    		int rand = new Random().nextInt(1 + worlds().size());
+    		if (rand == 0) {
+    			return defaultWorld;
+    		} else {
+    			return worlds().get(rand - 1);
+    		}
+    	} else  {
+            return defaultWorld;	
+    	}
     }
 
     public List<World> worlds() {
