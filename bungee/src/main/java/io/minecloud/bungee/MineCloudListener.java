@@ -18,7 +18,9 @@ package io.minecloud.bungee;
 import io.minecloud.models.bungee.Bungee;
 import io.minecloud.models.server.Server;
 import io.minecloud.models.server.ServerRepository;
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ServerPing;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.event.ProxyPingEvent;
@@ -89,7 +91,9 @@ public class MineCloudListener implements Listener {
         ServerInfo server = plugin.getProxy().getReconnectHandler().getServer(event.getPlayer());
 
         if (server != null) {
-            event.getPlayer().sendMessage(event.getKickReasonComponent());
+        	BaseComponent[] message = TextComponent.fromLegacyText("" + ChatColor.BLUE + ChatColor.BOLD + "Cardinal> " 
+        			+ ChatColor.AQUA + TextComponent.toLegacyText(event.getKickReasonComponent()));
+            event.getPlayer().sendMessage(message);
         } else {
             return;
         }

@@ -31,6 +31,8 @@ import io.minecloud.models.plugins.PluginType;
 import io.minecloud.models.server.Server;
 import io.minecloud.models.server.ServerRepository;
 import io.minecloud.models.server.type.ServerType;
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
@@ -50,6 +52,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 public class MineCloudPlugin extends Plugin {
+	
+	public static final String PREFIX = "" + ChatColor.BLUE + ChatColor.BOLD + "Cardinal> " 
+			+ ChatColor.AQUA;
+	
     Cached<Bungee> bungee;
     MongoDatabase mongo;
     RedisDatabase redis;
@@ -120,7 +126,7 @@ public class MineCloudPlugin extends Plugin {
                             info = getProxy().getServerInfo(name);
                         }
                     }
-
+                    player.sendMessage(TextComponent.fromLegacyText(PREFIX + "Sending you to " + name));
                     player.connect(info);
                 }));
 
@@ -163,7 +169,8 @@ public class MineCloudPlugin extends Plugin {
                         addServer(server);
                         info = getProxy().getServerInfo(server.name());
                     }
-
+                    
+                    player.sendMessage(TextComponent.fromLegacyText(PREFIX + "Sending you to " + server.name()));
                     player.connect(info);
                 }));
 
