@@ -54,9 +54,7 @@ public class Network extends MongoEntity {
             throw new IllegalArgumentException("Cannot deploy " + type + " on network; is not a valid network bungee type!");
         }
 
-        
-
-        try (MessageOutputStream os = new MessageOutputStream()){
+        try (MessageOutputStream os = new MessageOutputStream()) {
             os.writeString(node.name());
             os.writeString(name());
             os.writeString(type.name());
@@ -72,7 +70,7 @@ public class Network extends MongoEntity {
 
         Node node = nodeRepo.findNode(this, type.preferredNode(), type.dedicatedRam());
 
-        try (MessageOutputStream os = new MessageOutputStream()){
+        try (MessageOutputStream os = new MessageOutputStream()) {
             os.writeString(node.name());
             os.writeString(name());
             os.writeString(type.name());

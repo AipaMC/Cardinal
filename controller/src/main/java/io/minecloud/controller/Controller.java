@@ -24,6 +24,7 @@ import io.minecloud.models.bungee.Bungee;
 import io.minecloud.models.bungee.BungeeRepository;
 import io.minecloud.models.bungee.type.BungeeType;
 import io.minecloud.models.network.Network;
+import io.minecloud.models.network.server.ServerNetworkMetadata;
 import io.minecloud.models.nodes.Node;
 import io.minecloud.models.server.Server;
 import io.minecloud.models.server.ServerRepository;
@@ -71,7 +72,20 @@ public class Controller {
                         network.servers().stream()
                                 .filter((server) -> server.ramUsage() != -1 && server.port() == -1)
                                 .forEach((server) -> mongo.repositoryBy(Server.class).delete(server));
-
+                        
+                        //Check for servers that have been removed from the network and delete them
+                        //I would use lambdas here to fit the style... but they make Eclipse break very much -_-
+                        for (Server server : network.servers()) {
+                        	boolean found = false;
+                        	for (ServerNetworkMetadata data : network.serverMetadata()) {
+                        		if (data.type().equals(server.type())) {
+                        			found = true;
+                        		}
+                        	}
+                        	if (found == false) {
+                        		mongo.repositoryBy(Server.class).delete(server);
+                        	}
+                        }
                         network.serverMetadata().forEach((metadata) -> {
                             int serversOnline = network.serversOnline(metadata.type());
 
