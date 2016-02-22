@@ -78,7 +78,7 @@ public class Controller {
                         for (Server server : network.servers()) {
                         	boolean found = false;
                         	for (ServerNetworkMetadata data : network.serverMetadata()) {
-                        		if (data.type().equals(server.type())) {
+                        		if (data.type().name().equals(server.type().name())) {
                         			found = true;
                         		}
                         	}
