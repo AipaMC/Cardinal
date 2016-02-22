@@ -91,8 +91,8 @@ public class MineCloudListener implements Listener {
         ServerInfo server = plugin.getProxy().getReconnectHandler().getServer(event.getPlayer());
 
         if (server != null) {
-        	BaseComponent[] message = TextComponent.fromLegacyText("" + ChatColor.BLUE + ChatColor.BOLD + "Cardinal> " 
-        			+ ChatColor.AQUA + TextComponent.toLegacyText(event.getKickReasonComponent()));
+        	BaseComponent[] message = TextComponent.fromLegacyText(MineCloudPlugin.PREFIX
+        			+ TextComponent.toLegacyText(event.getKickReasonComponent()));
             event.getPlayer().sendMessage(message);
         } else {
             return;

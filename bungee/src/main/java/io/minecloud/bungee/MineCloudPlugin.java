@@ -161,6 +161,10 @@ public class MineCloudPlugin extends Plugin {
 
                     Collections.sort(servers, (a, b) -> a.onlinePlayers().size() - b.onlinePlayers().size());
 
+                    if (servers.size() == 0) {
+                    	player.sendMessage(TextComponent.fromLegacyText(PREFIX + "Cannot find a server to move you to"));
+                    	return;
+                    }
                     Server server = servers.get(0);
                     ServerInfo info = getProxy().getServerInfo(server.name());
 
