@@ -46,8 +46,10 @@ public class ReconnectHandler extends AbstractReconnectHandler {
             servers.removeIf((s) -> !s.type().defaultServer());
 
             Collections.sort(servers, (a, b) -> a.onlinePlayers().size() - b.onlinePlayers().size());
-
-            info = plugin.getProxy().getServerInfo(servers.get(0).name());
+            
+            if (servers.size() == 0) {
+                info = plugin.getProxy().getServerInfo(servers.get(0).name());	
+            }
         }
 
         if (info == null) {
