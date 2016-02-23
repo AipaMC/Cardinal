@@ -130,6 +130,15 @@ public class Network extends MongoEntity {
                 .field("network").equal(this)
                 .field("type").equal(type));
     }
+    
+    public int serversAvailable(ServerType type) {
+        ServerRepository repository = MineCloud.instance().mongo().repositoryBy(Server.class);
+
+        return (int) repository.count(repository.createQuery()
+                .field("network").equal(this)
+                .field("type").equal(type)
+                .field("joinable").equal(true));
+    }
 
     public int bungeesOnline() {
         return (int) MineCloud.instance().mongo().repositoryBy(Bungee.class)

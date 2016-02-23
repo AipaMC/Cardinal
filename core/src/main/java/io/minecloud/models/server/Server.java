@@ -67,6 +67,9 @@ public class Server extends MongoEntity {
     private List<ServerMetadata> metadata;
     @Setter
     private long startTime = Long.MAX_VALUE;
+    /** Marks when the server is open to joining players. */
+    @Setter
+    private boolean joinable = true;
 
     public Network network() {
         return network;
@@ -82,6 +85,10 @@ public class Server extends MongoEntity {
 
     public long startTime() {
         return startTime;
+    }
+    
+    public boolean isJoinable() {
+    	return joinable;
     }
 
     public List<PlayerData> onlinePlayers() {

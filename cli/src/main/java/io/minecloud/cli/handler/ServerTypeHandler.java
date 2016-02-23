@@ -22,6 +22,7 @@ import io.minecloud.models.nodes.type.NodeType;
 import io.minecloud.models.plugins.Plugin;
 import io.minecloud.models.plugins.PluginType;
 import io.minecloud.models.server.World;
+import io.minecloud.models.server.type.ServerLaunchType;
 import io.minecloud.models.server.type.ServerType;
 
 import java.util.ArrayList;
@@ -106,6 +107,19 @@ public class ServerTypeHandler extends AbstractHandler {
     public String randomDefaultWorld(@Param(name = "value") boolean def) {
         type.setRandomDefaultWorld(def);
         return "Set random default world value to " + def;
+    }
+    
+    @Command
+    public String launchType(@Param(name = "value") String launchType) {
+        ServerLaunchType type = ServerLaunchType.valueOf(launchType.toUpperCase());
+
+        if (type == null) {
+            return "No server type of name " + launchType + " was found. " +
+                    "Available server types: players, available";
+        }
+
+        this.type.setLaunchType(type);
+        return "Set server launch type to " + launchType + " successfully";
     }
 
     @Command

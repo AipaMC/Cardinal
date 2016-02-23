@@ -50,6 +50,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 public class MineCloudPlugin extends Plugin {
 	
@@ -165,6 +166,16 @@ public class MineCloudPlugin extends Plugin {
                     	player.sendMessage(TextComponent.fromLegacyText(PREFIX + "Cannot find a server to move you to"));
                     	return;
                     }
+                    //Players can only be teleported to joinable servers
+                    servers = servers.stream()
+                    		.filter(server -> server.isJoinable())
+                    		.collect(Collectors.toList());
+                    if (servers.size() == 0) {
+                    	player.sendMessage(TextComponent.fromLegacyText(PREFIX + "All servers are current being used. "
+                    			+ "Please wait for new servers to become available."));
+                    	return;
+                    }
+                    
                     Server server = servers.get(0);
                     ServerInfo info = getProxy().getServerInfo(server.name());
 

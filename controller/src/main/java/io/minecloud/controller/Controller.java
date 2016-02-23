@@ -28,6 +28,7 @@ import io.minecloud.models.network.server.ServerNetworkMetadata;
 import io.minecloud.models.nodes.Node;
 import io.minecloud.models.server.Server;
 import io.minecloud.models.server.ServerRepository;
+import io.minecloud.models.server.type.ServerLaunchType;
 import io.minecloud.models.server.type.ServerType;
 
 import java.io.File;
@@ -87,36 +88,46 @@ public class Controller {
                         	}
                         }
                         network.serverMetadata().forEach((metadata) -> {
-                            int serversOnline = network.serversOnline(metadata.type());
-
-                            int space = metadata.type().maxPlayers() * serversOnline;
-                            ServerRepository repository = mongo.repositoryBy(Server.class);
-
+                        	ServerRepository repository = mongo.repositoryBy(Server.class);
                             List<Server> servers = repository.find(repository.createQuery()
                                     .field("type").equal(metadata.type())
                                     .field("network").equal(network))
                                     .asList();
-                            int onlinePlayers = servers.stream()
-                                    .flatMapToInt((s) -> IntStream.of(s.onlinePlayers().size()))
-                                    .sum();
-                            //If we are at > 75% of current capacity, launch more servers
-                            int scaledServers = onlinePlayers > (space * 0.75) ?
-                                    (int) Math.floor(onlinePlayers / (space * 0.75)) + 1 :
-                                    0;
-                            int requiredServers = metadata.minimumAmount() - serversOnline;
+                            
+                            int serversOnline = network.serversOnline(metadata.type());
+                            
+                        	int neededServers = 0;
+                        	//Calculate needed servers from players online
+                        	if (metadata.type().launchType() == ServerLaunchType.PLAYERS) {
+                                int space = metadata.type().maxPlayers() * serversOnline;
+                                int onlinePlayers = servers.stream()
+                                        .flatMapToInt((s) -> IntStream.of(s.onlinePlayers().size()))
+                                        .sum();
+                                //If we are at > 75% of current capacity, launch more servers
+                                int scaledServers = onlinePlayers > (space * 0.75) ?
+                                        (int) Math.floor(onlinePlayers / (space * 0.75)) + 1 :
+                                        0;
+                                int requiredServers = metadata.minimumAmount() - serversOnline;
 
-                            if (requiredServers < 0) {
-                                requiredServers = 0;
-                            }
-
+                                if (requiredServers < 0) {
+                                    requiredServers = 0;
+                                }
+                                
+                                neededServers = requiredServers + scaledServers;
+                            //Or from the amount of servers that are available for play
+                        	} else if (metadata.type().launchType() == ServerLaunchType.AVAILABLE) {
+                                int availableServers = network.serversAvailable(metadata.type());
+                                //No servers available? Launch one!
+                                neededServers = availableServers == 0 ? 1 : 0;
+                        	}
+                        	
                             //Don't go over the maximum server count
-                            if ((scaledServers + requiredServers + servers.size()) > metadata.maximumAmount()) {
-                                requiredServers = metadata.maximumAmount() - servers.size();
-                                scaledServers = 0;
+                            if ((neededServers + servers.size()) > metadata.maximumAmount()) {
+                            	neededServers = metadata.maximumAmount() - servers.size();
                             }
 
-                            if (requiredServers > 0 || scaledServers > 0) {
-                                IntStream.range(0, requiredServers + scaledServers)
+                            if (neededServers > 0) {
+                                IntStream.range(0, neededServers)
                                 .forEach((i) -> {
                                 	try {
                                 		Thread.sleep(200L);

@@ -57,6 +57,9 @@ public class ServerType extends MongoEntity {
     /** If true, each time the server starts we will choose a random world to use as default */
     @Setter
     private boolean randomDefaultWorld = false; //False is the default value
+    /** Determines when this server type needs more instances */
+    @Setter
+    private ServerLaunchType launchType = ServerLaunchType.PLAYERS; //Default value
 
     public String name() {
         return entityId();
@@ -84,6 +87,10 @@ public class ServerType extends MongoEntity {
     
     public boolean randomDefaultWorld() {
     	return randomDefaultWorld;
+    }
+    
+    public ServerLaunchType launchType() {
+    	return launchType;
     }
 
     public List<Plugin> plugins() {
