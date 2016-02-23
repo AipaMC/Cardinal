@@ -58,9 +58,8 @@ public abstract class AbstractHandler {
 
         System.out.print("Chosen option: ");
         int option = -1;
-        try (Scanner scan = new Scanner(System.in)) {
-        	option = scan.nextInt();
-        }
+        Scanner scan = new Scanner(System.in);
+        option = scan.nextInt();
 
         if (option < 0 || option >= options.size()) {
             System.out.println("\nInvalid option! Trying again...\n\n");
