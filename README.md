@@ -1,3 +1,12 @@
+#Cardinal
+
+Cardinal is a fork of MineCloud designed for the MegaCraftGames server. This fork adds various functionality that our network needs to function as well as some cleanup here and there.
+
+##Notices
+I will provide ZERO support for this fork. MineCloud itself is already hard enough to setup, so if you can figure that out you probably know enough to read code and can see the changes we've made and build your own fork.
+
+
+###---Original MineCloud README---
 # MineCloud
 
 ## What is MineCloud?
