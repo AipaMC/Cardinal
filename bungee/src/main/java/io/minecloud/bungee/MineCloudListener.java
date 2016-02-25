@@ -18,7 +18,6 @@ package io.minecloud.bungee;
 import io.minecloud.models.bungee.Bungee;
 import io.minecloud.models.server.Server;
 import io.minecloud.models.server.ServerRepository;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ServerPing;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
