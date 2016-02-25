@@ -236,7 +236,7 @@ public class MineCloudPlugin extends Plugin {
                     pluginType.name() + "/" + (plugin.config() == null ? version : plugin.config()));
             File configContainer = new File(nContainer, pluginType.name());
 
-            File defaultPluginContainer = new File("plugins/");
+            File defaultPluginContainer = new File("plugins/" + pluginType.name());
             
             if (!validateFolder(configs, pluginType, version)) {
             	 copyFolder(configs, configContainer);
