@@ -97,7 +97,9 @@ public class MineCloudListener implements Listener {
             return;
         }
 
-        event.getPlayer().connect(server);
+        //The method that calls this event (see ServerConnector) already sends the player
+        //to the canceled server when the event is cancelled. No need to do it twice
+        //event.getPlayer().connect(server);
         event.setCancelServer(server);
         event.setCancelled(true);
     }

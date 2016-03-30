@@ -53,7 +53,7 @@ public class ReconnectHandler extends AbstractReconnectHandler {
         }
 
         if (info == null) {
-            proxiedPlayer.disconnect(new TextComponent("Could not find a server to connect to, please report."));
+            proxiedPlayer.disconnect(new TextComponent("Could not find a server to connect to, try again in a moment!"));
         }
 
         return info;
