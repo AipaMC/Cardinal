@@ -211,9 +211,9 @@ public final class Deployer {
         runDir.mkdirs();
 
         try {
-            Files.write(Paths.get(runDir.getAbsolutePath(), "init.sh"), startScript);
+            Files.write(Paths.get(runDir.getAbsolutePath(), "start.sh"), startScript);
             Files.write(Paths.get(runDir.getAbsolutePath(), "started.ts"), Arrays.asList(String.valueOf(System.currentTimeMillis())));
-            new File(runDir, "init.sh").setExecutable(true);
+            new File(runDir, "start.sh").setExecutable(true);
 
             ProcessBuilder process = new ProcessBuilder();
             env.forEach((key, value) -> {
@@ -222,7 +222,7 @@ public final class Deployer {
             process
                     .directory(runDir)
                     .redirectErrorStream(true)
-                    .command("/usr/bin/screen", "-dm", "-S", name, "sh", "init.sh")
+                    .command("/usr/bin/screen", "-dm", "-S", name, "sh", "start.sh")
                     .start();
         } catch (IOException ex) {
             throw new MineCloudException(ex);
