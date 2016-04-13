@@ -217,7 +217,7 @@ public final class Deployer {
 
             ProcessBuilder process = new ProcessBuilder();
             env.forEach((key, value) -> {
-            	process.environment().put(key, env.get(key));
+            process.environment().put(key, env.get(key));
             });
             process
                     .directory(runDir)

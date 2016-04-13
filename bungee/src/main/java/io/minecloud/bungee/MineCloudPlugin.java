@@ -53,10 +53,10 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public class MineCloudPlugin extends Plugin {
-	
-	public static final String PREFIX = "" + ChatColor.BLUE + ChatColor.BOLD + "Cardinal> " 
-			+ ChatColor.AQUA;
-	
+    
+    public static final String PREFIX = "" + ChatColor.BLUE + ChatColor.BOLD + "Cardinal> " 
+            + ChatColor.AQUA;
+    
     Cached<Bungee> bungee;
     MongoDatabase mongo;
     RedisDatabase redis;
@@ -163,17 +163,17 @@ public class MineCloudPlugin extends Plugin {
                     Collections.sort(servers, (a, b) -> a.onlinePlayers().size() - b.onlinePlayers().size());
 
                     if (servers.size() == 0) {
-                    	player.sendMessage(TextComponent.fromLegacyText(PREFIX + "Cannot find a server to move you to"));
-                    	return;
+                        player.sendMessage(TextComponent.fromLegacyText(PREFIX + "Cannot find a server to move you to"));
+                        return;
                     }
                     //Players can only be teleported to joinable servers
                     servers = servers.stream()
-                    		.filter(server -> server.isJoinable())
-                    		.collect(Collectors.toList());
+                            .filter(server -> server.isJoinable())
+                            .collect(Collectors.toList());
                     if (servers.size() == 0) {
-                    	player.sendMessage(TextComponent.fromLegacyText(PREFIX + "All servers are current being used. "
-                    			+ "Please wait for new servers to become available."));
-                    	return;
+                        player.sendMessage(TextComponent.fromLegacyText(PREFIX + "All servers are current being used. "
+                                + "Please wait for new servers to become available."));
+                        return;
                     }
                     
                     Server server = servers.get(0);
@@ -239,8 +239,8 @@ public class MineCloudPlugin extends Plugin {
             File defaultPluginContainer = new File("plugins/" + pluginType.name());
             
             if (!validateFolder(configs, pluginType, version)) {
-            	 copyFolder(configs, configContainer);
-            	 copyFolder(configs, defaultPluginContainer);
+                 copyFolder(configs, configContainer);
+                 copyFolder(configs, defaultPluginContainer);
             }
         });
 
