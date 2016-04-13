@@ -108,7 +108,12 @@ public class Network extends MongoEntity {
         server.setType(type);
         server.setNumber(repository.nextNumberFor(type));
         server.setNetwork(this);
-        server.setNode(null); //Not tied to a MineCloud node
+        
+        Node fakeNode = new Node();
+        fakeNode.setName("External");
+        fakeNode.setAvailableRam(10000);
+        server.setNode(fakeNode); //Not tied to a MineCloud node
+        
         server.setOnlinePlayers(new ArrayList<>());
         server.setRamUsage(-1);
         server.setId(server.type().name() + server.number());
