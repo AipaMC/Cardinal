@@ -194,15 +194,8 @@ public class MineCloudDaemon {
                         return;
 
                     MessageInputStream stream = message.contents();
-                    Server server = mongo.repositoryBy(Server.class).findFirst(stream.readString());
                     
-                    //Ignore external servers
-                    if (server.type().launchType() == ServerLaunchType.EXTERNAL) {
-                        return;
-                    }
-                    
-                    File file = new File("/var/minecloud/" + server.entityId());
-
+                    File file = new File("/var/minecloud/" + stream.readString());
                     if (file.exists()) {
                         file.delete();
                     }
