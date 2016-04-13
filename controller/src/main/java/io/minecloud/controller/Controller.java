@@ -123,7 +123,7 @@ public class Controller {
                         if (serversOnline < 1) {
                             network.setupExternalServer(metadata.type());
                         }
-                        return;
+                        continue;
                     }
                     
                     //Don't go over the maximum server count
