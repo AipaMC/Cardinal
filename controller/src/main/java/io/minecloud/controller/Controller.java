@@ -59,98 +59,96 @@ public class Controller {
 
             nodesUsed.clear();
 
-            mongo.repositoryBy(Network.class).models()
-                    .forEach((network) -> {
-                        network.bungeeMetadata().forEach((type, amount) -> {
-                            int difference = amount - network.bungeesOnline(type);
+            for (Network network : mongo.repositoryBy(Network.class).models()) {
+                network.bungeeMetadata().forEach((type, amount) -> {
+                    int difference = amount - network.bungeesOnline(type);
 
-                            if (difference > 0) {
-                                IntStream.range(0, difference)
-                                        .forEach((i) -> deployBungee(network, type));
-                            }
-                        });
+                    if (difference > 0) {
+                        IntStream.range(0, difference)
+                                .forEach((i) -> deployBungee(network, type));
+                    }
+                });
 
-                        network.servers().stream()
-                                .filter((server) -> server.ramUsage() != -1 && server.port() == -1)
-                                .forEach((server) -> mongo.repositoryBy(Server.class).delete(server));
+                network.servers().stream()
+                        .filter((server) -> server.ramUsage() != -1 && server.port() == -1)
+                        .forEach((server) -> mongo.repositoryBy(Server.class).delete(server));
+                
+                //Check for servers that have been removed from the network and delete them
+                //I would use lambdas here to fit the style... but they make Eclipse break very much -_-
+                for (Server server : network.servers()) {
+                    boolean found = false;
+                    for (ServerNetworkMetadata data : network.serverMetadata()) {
+                        if (data.type().name().equals(server.type().name())) {
+                            found = true;
+                        }
+                    }
+                    if (found == false) {
+                        mongo.repositoryBy(Server.class).delete(server);
+                    }
+                }
+                for (ServerNetworkMetadata metadata : network.serverMetadata()) {
+                    ServerRepository repository = mongo.repositoryBy(Server.class);
+                    List<Server> servers = repository.find(repository.createQuery()
+                            .field("type").equal(metadata.type())
+                            .field("network").equal(network))
+                            .asList();
+                    
+                    int serversOnline = network.serversOnline(metadata.type());
+                    
+                    int neededServers = 0;
+                    //Calculate needed servers from players online
+                    if (metadata.type().launchType() == ServerLaunchType.PLAYERS) {
+                        int space = metadata.type().maxPlayers() * serversOnline;
+                        int onlinePlayers = servers.stream()
+                                .flatMapToInt((s) -> IntStream.of(s.onlinePlayers().size()))
+                                .sum();
+                        //If we are at > 75% of current capacity, launch more servers
+                        int scaledServers = onlinePlayers > (space * 0.75) ?
+                                (int) Math.floor(onlinePlayers / (space * 0.75)) + 1 : 0;
+                        int requiredServers = metadata.minimumAmount() - serversOnline;
+
+                        if (requiredServers < 0) {
+                            requiredServers = 0;
+                        }
                         
-                        //Check for servers that have been removed from the network and delete them
-                        //I would use lambdas here to fit the style... but they make Eclipse break very much -_-
-                        for (Server server : network.servers()) {
-                            boolean found = false;
-                            for (ServerNetworkMetadata data : network.serverMetadata()) {
-                                if (data.type().name().equals(server.type().name())) {
-                                    found = true;
-                                }
+                        neededServers = requiredServers + scaledServers;
+                    //Or from the amount of servers that are available for play
+                    } else if (metadata.type().launchType() == ServerLaunchType.AVAILABLE) {
+                        int availableServers = network.serversAvailable(metadata.type());
+                        //No servers available? Launch one!
+                        neededServers = availableServers == 0 ? 1 : 0;
+                    }
+                    
+                    //Don't go over the maximum server count
+                    if ((neededServers + servers.size()) > metadata.maximumAmount()) {
+                        neededServers = metadata.maximumAmount() - servers.size();
+                    }
+
+                    if (neededServers > 0) {
+                        IntStream.range(0, neededServers)
+                        .forEach((i) -> {
+                            try {
+                                Thread.sleep(200L);
+                            } catch (InterruptedException ignored) {
                             }
-                            if (found == false) {
+                            
+                            ServerType type = metadata.type();
+                            MineCloud.logger().info("Sent deploy message to " + network.deployServer(type).name() +
+                                    " for server type " + type.name() + " on " + network.name());
+                        });
+                    } else if (metadata.type().defaultServer() && serversOnline > metadata.minimumAmount()){
+                        //Check for empty default servers to remove
+                        for (Server server : servers) {
+                            //Make sure we don't go below the minimum amount
+                            if (serversOnline >= metadata.minimumAmount() 
+                                    && server.onlinePlayers().size() == 0) {
                                 mongo.repositoryBy(Server.class).delete(server);
+                                serversOnline--;
                             }
                         }
-                        network.serverMetadata().forEach((metadata) -> {
-                            ServerRepository repository = mongo.repositoryBy(Server.class);
-                            List<Server> servers = repository.find(repository.createQuery()
-                                    .field("type").equal(metadata.type())
-                                    .field("network").equal(network))
-                                    .asList();
-                            
-                            int serversOnline = network.serversOnline(metadata.type());
-                            
-                            int neededServers = 0;
-                            //Calculate needed servers from players online
-                            if (metadata.type().launchType() == ServerLaunchType.PLAYERS) {
-                                int space = metadata.type().maxPlayers() * serversOnline;
-                                int onlinePlayers = servers.stream()
-                                        .flatMapToInt((s) -> IntStream.of(s.onlinePlayers().size()))
-                                        .sum();
-                                //If we are at > 75% of current capacity, launch more servers
-                                int scaledServers = onlinePlayers > (space * 0.75) ?
-                                        (int) Math.floor(onlinePlayers / (space * 0.75)) + 1 :
-                                        0;
-                                int requiredServers = metadata.minimumAmount() - serversOnline;
-
-                                if (requiredServers < 0) {
-                                    requiredServers = 0;
-                                }
-                                
-                                neededServers = requiredServers + scaledServers;
-                            //Or from the amount of servers that are available for play
-                            } else if (metadata.type().launchType() == ServerLaunchType.AVAILABLE) {
-                                int availableServers = network.serversAvailable(metadata.type());
-                                //No servers available? Launch one!
-                                neededServers = availableServers == 0 ? 1 : 0;
-                            }
-                            
-                            //Don't go over the maximum server count
-                            if ((neededServers + servers.size()) > metadata.maximumAmount()) {
-                                neededServers = metadata.maximumAmount() - servers.size();
-                            }
-
-                            if (neededServers > 0) {
-                                IntStream.range(0, neededServers)
-                                .forEach((i) -> {
-                                    try {
-                                        Thread.sleep(200L);
-                                    } catch (InterruptedException ignored) {
-                                    }
-                                    
-                                    ServerType type = metadata.type();
-                                    MineCloud.logger().info("Sent deploy message to " + network.deployServer(type).name() +
-                                            " for server type " + type.name() + " on " + network.name());
-                                });
-                            } else if (metadata.type().defaultServer() && serversOnline > metadata.minimumAmount()){
-                                //Check for empty default servers to remove
-                                for (Server server : servers) {
-                                    //Make sure we don't go below the minimum amount
-                                    if (serversOnline >= metadata.minimumAmount() 
-                                            && server.onlinePlayers().size() == 0) {
-                                        mongo.repositoryBy(Server.class).delete(server);
-                                        serversOnline--;
-                                    }
-                                }
-                            }
-                        });
-                    });
+                    }
+                }
+            }
 
             try {
                 Thread.sleep(10000L);
