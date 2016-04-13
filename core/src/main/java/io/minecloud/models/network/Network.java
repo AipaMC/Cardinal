@@ -28,15 +28,12 @@ import io.minecloud.models.nodes.NodeRepository;
 import io.minecloud.models.server.Server;
 import io.minecloud.models.server.ServerMetadata;
 import io.minecloud.models.server.ServerRepository;
-import io.minecloud.models.server.type.ServerLaunchType;
 import io.minecloud.models.server.type.ServerType;
 import lombok.Setter;
-
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Reference;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -88,53 +85,6 @@ public class Network extends MongoEntity {
             MineCloud.logger().log(Level.SEVERE, "Encountered an odd exception whilst encoding a message", e);
         }
         return node;
-    }
-    
-    /**
-     * Sets up database entries for an external server. This
-     * 1. Creates a Mongo entry for the server
-     * 2. Sends a server start notification to the bungees
-     * @param type Type of server to launch
-     */
-    public void setupExternalServer(ServerType type) {
-    	//Sanity check
-    	if (type.launchType() != ServerLaunchType.EXTERNAL) {
-    		return;
-    	}
-    	//Create new entry for this server
-        ServerRepository repository = MineCloud.instance().mongo().repositoryBy(Server.class);
-        Server server = new Server();
-
-        server.setType(type);
-        server.setNumber(repository.nextNumberFor(type));
-        server.setNetwork(this);
-        
-        NodeRepository nodeRepo = MineCloud.instance().mongo().repositoryBy(Node.class);
-        Node fakeNode = new Node();
-        fakeNode.setId("External");
-        fakeNode.setName("External");
-        fakeNode.setAvailableRam(10000);
-        nodeRepo.save(fakeNode);
-        server.setNode(fakeNode); //Not tied to a MineCloud node
-        
-        server.setOnlinePlayers(new ArrayList<>());
-        server.setRamUsage(-1);
-        server.setId(server.type().name() + server.number());
-        server.setMetadata(new ArrayList<>());
-        server.setPort(type.externalPort());
-        server.setContainerId("null");
-        server.setStartTime(System.currentTimeMillis());
-        
-        repository.save(server);
-        
-        //Send redis start notification (for Bungee)
-        try (MessageOutputStream os = new MessageOutputStream()) {
-            os.writeString(server.entityId());
-
-            MineCloud.instance().redis().channelBy("server-start-notif").publish(os.toMessage());
-        } catch (IOException e) {
-            MineCloud.logger().log(Level.SEVERE, "Unable to publish server create message, shutting down", e);
-        }
     }
 
     public String name() {

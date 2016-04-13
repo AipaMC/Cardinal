@@ -31,7 +31,6 @@ import io.minecloud.models.nodes.NodeRepository;
 import io.minecloud.models.server.Server;
 import io.minecloud.models.server.ServerMetadata;
 import io.minecloud.models.server.ServerRepository;
-import io.minecloud.models.server.type.ServerLaunchType;
 import io.minecloud.models.server.type.ServerType;
 import org.mongodb.morphia.query.Query;
 import redis.clients.jedis.Jedis;
@@ -96,11 +95,6 @@ public class MineCloudDaemon {
                         return;
 
                     Server server = mongo.repositoryBy(Server.class).findFirst(stream.readString());
-                    
-                    //Sanity: Ignore external servers
-                    if (server.type().launchType() == ServerLaunchType.EXTERNAL) {
-                        return;
-                    }
 
                     if (!server.node().name().equals(node)) {
                         MineCloud.logger().log(Level.SEVERE, "Invalid request was sent to kill a server " +
@@ -176,12 +170,7 @@ public class MineCloudDaemon {
 
                     MessageInputStream stream = message.contents();
                     Server server = mongo.repositoryBy(Server.class).findFirst(stream.readString());
-                    
-                    //Ignore external servers
-                    if (server.type().launchType() == ServerLaunchType.EXTERNAL) {
-                        return;
-                    }
-                    
+
                     if (!server.node().name().equals(node))
                         return;
 
@@ -194,8 +183,8 @@ public class MineCloudDaemon {
                         return;
 
                     MessageInputStream stream = message.contents();
-                    
                     File file = new File("/var/minecloud/" + stream.readString());
+
                     if (file.exists()) {
                         file.delete();
                     }
@@ -220,10 +209,6 @@ public class MineCloudDaemon {
                     .collect(Collectors.toList());
 
             nodeServers.stream().filter((s) -> s.ramUsage() != -1).forEach((server) -> {
-                //Sanity: Ignore external servers
-                if (server.type().launchType() == ServerLaunchType.EXTERNAL) {
-                    return;
-                }
                 File runDir = new File("/var/minecloud/" + server.name());
 
                 if (!runDir.exists()) {
@@ -257,9 +242,6 @@ public class MineCloudDaemon {
 
             try (Jedis jedis = this.redis.grabResource()) {
                 nodeServers.stream().filter((s) -> s.ramUsage() != -1).forEach(server ->  {
-                    if (server.type().launchType() == ServerLaunchType.EXTERNAL) {
-                        return;
-                    }
                     Map<String, String> hResult = jedis.hgetAll("server:" + server.entityId());
 
                     if (hResult == null || hResult.isEmpty()) {

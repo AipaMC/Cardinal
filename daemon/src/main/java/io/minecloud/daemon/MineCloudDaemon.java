@@ -35,7 +35,6 @@ import io.minecloud.models.nodes.NodeRepository;
 import io.minecloud.models.server.Server;
 import io.minecloud.models.server.ServerMetadata;
 import io.minecloud.models.server.ServerRepository;
-import io.minecloud.models.server.type.ServerLaunchType;
 import io.minecloud.models.server.type.ServerType;
 import org.mongodb.morphia.query.Query;
 
@@ -98,11 +97,6 @@ public class MineCloudDaemon {
                         return;
 
                     Server server = mongo.repositoryBy(Server.class).findFirst(stream.readString());
-                    
-                    //Sanity: Ignore external servers
-                    if (server.type().launchType() == ServerLaunchType.EXTERNAL) {
-                        return;
-                    }
 
                     if (!server.node().name().equals(node)) {
                         MineCloud.logger().log(Level.SEVERE, "Invalid request was sent to kill a server " +
@@ -176,11 +170,6 @@ public class MineCloudDaemon {
                     MessageInputStream stream = message.contents();
 
                     Server server = mongo.repositoryBy(Server.class).findFirst(stream.readString());
-                    
-                    //Ignore external servers
-                    if (server.type().launchType() == ServerLaunchType.EXTERNAL) {
-                        return;
-                    }
 
                     if (!server.node().name().equals(node))
                         return;

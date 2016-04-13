@@ -212,45 +212,17 @@ public class ServerTypeHandler extends AbstractHandler {
 
         return "Added world " + world + " version " + version + " to the extra worlds";
     }
-    
-    @Command
-    public String externalIP(@Param(name = "external-ip") String ip) {
-        if (type.launchType() != ServerLaunchType.EXTERNAL) {
-            return "External IPs are only valid for servers with launch type EXTERNAL";
-        }
-        type.setExternalIP(ip);
-        return "Set external IP to " + ip;
-    }
-    
-    @Command
-    public String externalPort(@Param(name = "external-port") int port) {
-        if (type.launchType() != ServerLaunchType.EXTERNAL) {
-            return "External ports are only valid for servers with launch type EXTERNAL";
-        }
-        type.setExternalPort(port);
-        return "Set external port to " + port;
-    }
 
     @Command
     public String push() {
-        //Handle external servers differently
-        if (type.launchType() == ServerLaunchType.EXTERNAL) {
-            if (type.maxPlayers() == 0 ||
-                    type.externalIP() == null ||
-                    type.externalPort() == 0) {
-                return "Required fields (maxPlayers, extenralIP, extenralPort) have not been set by the user! " +
-                        "Unable to push modifications";
-            }
-    	} else {
-            if (type.dedicatedRam() == 0 ||
-                    type.maxPlayers() == 0 ||
-                    type.preferredNode() == null ||
-                    type.mod() == null ||
-                    type.defaultWorld() == null) {
-                return "Required fields (dedicatedRam, maxPlayers, preferredNode, defaultWorld) have not been set by the user! " +
-                        "Unable to push modifications";
-            }
-    	}
+        if (type.dedicatedRam() == 0 ||
+                type.maxPlayers() == 0 ||
+                type.preferredNode() == null ||
+                type.mod() == null ||
+                type.defaultWorld() == null) {
+            return "Required fields (dedicatedRam, maxPlayers, preferredNode, defaultWorld) have not been set by the user! " +
+                    "Unable to push modifications";
+        }
 
         MineCloud.instance().mongo()
                 .repositoryBy(ServerType.class)
@@ -273,7 +245,6 @@ public class ServerTypeHandler extends AbstractHandler {
         list.add("- Default World: " + type.defaultWorld().name() + "(" + type.defaultWorld().version() + ")");
         list.add("- Worlds: " + formatWorlds(type.worlds()));
         list.add("- Timeout: " + type.timeOut());
-        list.add("- Launch Type: " + type.launchType());
         list.add("===========================================");
         list.add("If you're ready to go, type 'push'.");
         return list;

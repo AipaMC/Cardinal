@@ -30,7 +30,6 @@ import io.minecloud.models.bungee.type.BungeeType;
 import io.minecloud.models.plugins.PluginType;
 import io.minecloud.models.server.Server;
 import io.minecloud.models.server.ServerRepository;
-import io.minecloud.models.server.type.ServerLaunchType;
 import io.minecloud.models.server.type.ServerType;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -315,20 +314,13 @@ public class MineCloudPlugin extends Plugin {
     }
 
     public void addServer(Server server) {
-        ServerInfo info;
-        if (server.type().launchType() == ServerLaunchType.EXTERNAL) {
-            info = getProxy().constructServerInfo(server.name(),
-                    new InetSocketAddress(server.type().externalIP(), server.type().externalPort()),
-                    "", false);
-    	} else {
-    	    info = getProxy().constructServerInfo(server.name(),
-                    new InetSocketAddress(server.node().privateIp(), server.port()),
-                    "", false);
-    	}
+        ServerInfo info = getProxy().constructServerInfo(server.name(),
+                new InetSocketAddress(server.node().privateIp(), server.port()),
+                "", false);
 
         getProxy().getServers().put(server.name(), info);
-        getLogger().info("Added " + server.name() + " to server list, " + info.getAddress().getHostString() +
-                ":" + info.getAddress().getPort());
+        getLogger().info("Added " + server.name() + " to server list, " + server.node().privateIp() +
+                ":" + server.port());
     }
 
     public void removeServer(String server) {
