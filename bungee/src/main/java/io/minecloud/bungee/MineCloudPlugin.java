@@ -28,6 +28,7 @@ import io.minecloud.db.redis.pubsub.SimpleRedisChannel;
 import io.minecloud.models.bungee.Bungee;
 import io.minecloud.models.bungee.type.BungeeType;
 import io.minecloud.models.external.ExternalServer;
+import io.minecloud.models.external.ExternalServerRepository;
 import io.minecloud.models.plugins.PluginType;
 import io.minecloud.models.server.Server;
 import io.minecloud.models.server.ServerRepository;
@@ -271,6 +272,14 @@ public class MineCloudPlugin extends Plugin {
 
             servers.removeIf((s) -> s.port() == -1);
             servers.forEach(this::addServer);
+            
+            //Now do external servers
+            ExternalServerRepository externalRepo = mongo.repositoryBy(ExternalServer.class);
+            List<ExternalServer> externalServers = externalRepo.find(externalRepo.createQuery()
+                    .field("network").equal(bungee().network()))
+                    .asList();
+            externalServers.removeIf((s) -> s.port() == -1);
+            externalServers.forEach(this::addServer);
 
             getProxy().setReconnectHandler(new ReconnectHandler(this));
             getProxy().getPluginManager().registerListener(this, new MineCloudListener(this));
