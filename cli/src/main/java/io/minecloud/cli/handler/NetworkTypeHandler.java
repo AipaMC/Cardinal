@@ -20,6 +20,8 @@ import asg.cliche.Param;
 import io.minecloud.MineCloud;
 import io.minecloud.models.bungee.Bungee;
 import io.minecloud.models.bungee.type.BungeeType;
+import io.minecloud.models.external.ExternalServer;
+import io.minecloud.models.external.ExternalServerType;
 import io.minecloud.models.network.Network;
 import io.minecloud.models.network.server.ServerNetworkMetadata;
 import io.minecloud.models.nodes.Node;
@@ -63,7 +65,7 @@ public class NetworkTypeHandler extends AbstractHandler {
         bungeeTypes.put(bungeeType, amount);
         type.setBungees(bungeeTypes);
 
-        return "Successfully added " + bungeeName + " to Network";
+        return "Successfully added " + bungeeName + " to the Network";
     }
 
     @Command
@@ -89,7 +91,53 @@ public class NetworkTypeHandler extends AbstractHandler {
 
         metadata.add(md);
 
-        return "Successfully added " + name + " to Network!";
+        return "Successfully added " + name + " to the Network!";
+    }
+    
+    @Command
+    public String addExternalServer(@Param(name = "server-name") String name) {
+        ExternalServerType serverType = MineCloud.instance().mongo()
+                .repositoryBy(ExternalServerType.class)
+                .findFirst(name);
+
+        if (serverType == null) {
+            return "No external server types found by the name of " + name;
+        }
+
+        if (type.externalServerTypes() == null) {
+            type.setExternalServers(new ArrayList<ExternalServerType>());
+        }
+        
+        type.externalServerTypes().add(serverType);
+
+        return "Successfully added " + name + " to the Network!";
+    }
+    
+    @Command
+    public String removeExternalServer(@Param(name = "server-name") String name) {
+        ExternalServerType serverType = MineCloud.instance().mongo()
+                .repositoryBy(ExternalServerType.class)
+                .findFirst(name);
+
+        if (serverType == null) {
+            return "No external server types found by the name of " + name;
+        }
+
+        if (type.externalServerTypes() == null) {
+            type.setExternalServers(new ArrayList<ExternalServerType>());
+        }
+        
+        Optional<ExternalServerType> optional = type.externalServerTypes().stream()
+                .filter((st) -> st.name().equals(serverType.name()))
+                .findFirst();
+
+        if (!optional.isPresent()) {
+            return name + " is not on the network!";
+        }
+        
+        type.externalServerTypes().remove(serverType);
+
+        return "Successfully removed " + name + " from the Network!";
     }
 
     @Command
@@ -111,7 +159,7 @@ public class NetworkTypeHandler extends AbstractHandler {
         nodes.add(node);
         type.setNodes(nodes);
 
-        return "Successfully added " + nodeName + " to Network";
+        return "Successfully added " + nodeName + " to the Network";
     }
 
     @Command
@@ -202,6 +250,10 @@ public class NetworkTypeHandler extends AbstractHandler {
     	type.bungees().forEach(bungee -> {
     		MineCloud.instance().mongo().repositoryBy(Bungee.class).delete(bungee);
     	});
+    	//Then external servers (just a refresh, doesn't actually restart them)
+        type.externalServers().forEach(server -> {
+            MineCloud.instance().mongo().repositoryBy(ExternalServer.class).delete(server);
+        });
     	
     	return "Restarting all servers and bungees...";
     }
