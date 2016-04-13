@@ -1,0 +1,3 @@
+name: 'Cardinal-External'
+version: 1.0
+main: io.minecloud.external.MineCloudPlugin
