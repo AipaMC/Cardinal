@@ -122,6 +122,8 @@ public class Network extends MongoEntity {
         server.setContainerId("null");
         server.setStartTime(System.currentTimeMillis());
         
+        repository.save(server);
+        
         //Send redis start notification (for Bungee)
         try (MessageOutputStream os = new MessageOutputStream()) {
             os.writeString(server.entityId());
@@ -130,8 +132,6 @@ public class Network extends MongoEntity {
         } catch (IOException e) {
             MineCloud.logger().log(Level.SEVERE, "Unable to publish server create message, shutting down", e);
         }
-        
-        repository.save(server);
     }
 
     public String name() {
