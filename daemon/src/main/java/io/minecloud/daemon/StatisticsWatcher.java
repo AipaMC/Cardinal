@@ -20,6 +20,7 @@ import io.minecloud.models.bungee.Bungee;
 import io.minecloud.models.nodes.CoreMetadata;
 import io.minecloud.models.nodes.Node;
 import io.minecloud.models.server.Server;
+import io.minecloud.models.server.type.ServerLaunchType;
 
 import java.io.File;
 import java.io.IOException;
@@ -111,9 +112,11 @@ public class StatisticsWatcher extends Thread {
                 prevTotal[i] = totalCpuTime;
             });
 
+            //External servers have no node
             Collection<Server> servers = MineCloud.instance().mongo()
                     .repositoryBy(Server.class)
-                    .findAll((server) -> server.node().name().equals(node.name()));
+                    .findAll((server) -> server.type().launchType() != ServerLaunchType.EXTERNAL 
+                    	&& server.node().name().equals(node.name()));
             Collection<Bungee> bungees = MineCloud.instance().mongo()
                     .repositoryBy(Bungee.class)
                     .findAll((bungee) -> bungee.node().name().equals(node.name()));
