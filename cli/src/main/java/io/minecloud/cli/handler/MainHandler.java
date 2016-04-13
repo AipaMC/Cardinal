@@ -32,6 +32,11 @@ public class MainHandler extends AbstractHandler {
     public void serverType(@Param(name = "name") String name) {
         enterShell(new ServerTypeHandler(name), "server-type");
     }
+    
+    @Command(name = "external-server-type")
+    public void externalServerType(@Param(name = "name") String name) {
+        enterShell(new ExternalServerTypeHandler(name), "external-server-type");
+    }
 
     @Command(name = "node-type")
     public void nodeType(@Param(name = "name") String name) {
@@ -52,4 +57,5 @@ public class MainHandler extends AbstractHandler {
     public void node(@Param(name = "name") String name) {
         enterShell(new NodeHandler(name), "node");
     }
+    
 }

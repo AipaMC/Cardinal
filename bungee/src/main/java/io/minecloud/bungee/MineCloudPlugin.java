@@ -27,6 +27,7 @@ import io.minecloud.db.redis.msg.binary.MessageInputStream;
 import io.minecloud.db.redis.pubsub.SimpleRedisChannel;
 import io.minecloud.models.bungee.Bungee;
 import io.minecloud.models.bungee.type.BungeeType;
+import io.minecloud.models.external.ExternalServer;
 import io.minecloud.models.plugins.PluginType;
 import io.minecloud.models.server.Server;
 import io.minecloud.models.server.ServerRepository;
@@ -90,6 +91,22 @@ public class MineCloudPlugin extends Plugin {
                         } catch (IOException ignored) {
                         }
                     }, 1, TimeUnit.SECONDS)));
+        
+        redis.addChannel(SimpleRedisChannel.create("external-server-add", redis)
+                .addCallback((message) ->
+                    getProxy().getScheduler().schedule(this, () -> {
+                        if (message.type() != MessageType.BINARY) {
+                            return;
+                        }
+
+                        try {
+                            MessageInputStream stream = message.contents();
+                            ExternalServer server = mongo.repositoryBy(ExternalServer.class).findFirst(stream.readString());
+
+                            addServer(server);
+                        } catch (IOException ignored) {
+                        }
+                    }, 1, TimeUnit.SECONDS)));        
 
         redis.addChannel(SimpleRedisChannel.create("server-shutdown-notif", redis)
                 .addCallback((message) -> {
@@ -314,13 +331,21 @@ public class MineCloudPlugin extends Plugin {
     }
 
     public void addServer(Server server) {
-        ServerInfo info = getProxy().constructServerInfo(server.name(),
-                new InetSocketAddress(server.node().privateIp(), server.port()),
+        addServer(server.name(), server.node().privateIp(), server.port());
+    }
+    
+    public void addServer(ExternalServer server) {
+        addServer(server.name(), server.address(), server.port());
+    }
+    
+    private void addServer(String name, String ip, int port) {
+        ServerInfo info = getProxy().constructServerInfo(name,
+                new InetSocketAddress(ip, port),
                 "", false);
 
-        getProxy().getServers().put(server.name(), info);
-        getLogger().info("Added " + server.name() + " to server list, " + server.node().privateIp() +
-                ":" + server.port());
+        getProxy().getServers().put(name, info);
+        getLogger().info("Added " + name + " to server list, " + ip +
+                ":" + port);
     }
 
     public void removeServer(String server) {

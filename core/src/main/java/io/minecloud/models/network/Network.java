@@ -22,6 +22,9 @@ import io.minecloud.models.bungee.Bungee;
 import io.minecloud.models.bungee.BungeeRepository;
 import io.minecloud.models.bungee.type.BungeeType;
 import io.minecloud.models.bungee.type.BungeeTypeRepository;
+import io.minecloud.models.external.ExternalServer;
+import io.minecloud.models.external.ExternalServerRepository;
+import io.minecloud.models.external.ExternalServerType;
 import io.minecloud.models.network.server.ServerNetworkMetadata;
 import io.minecloud.models.nodes.Node;
 import io.minecloud.models.nodes.NodeRepository;
@@ -34,6 +37,7 @@ import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Reference;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +47,10 @@ import java.util.logging.Level;
 public class Network extends MongoEntity {
     @Setter
     private List<ServerNetworkMetadata> serverMetadata;
+    
+    /** Any linked external servers on this network */
+    @Setter
+    private List<ExternalServerType> externalServers;
     
     private Map<String, Integer> bungees;
     @Setter
@@ -86,6 +94,40 @@ public class Network extends MongoEntity {
         }
         return node;
     }
+    
+    /**
+     * Sets up database entries for an external server. This
+     * 1. Creates a Mongo entry for the server
+     * 2. Sends a server start notification to the bungees
+     * @param type Type of server to launch
+     */
+    public void setupExternalServer(ExternalServerType type) {
+        //Create new entry for this server
+        ExternalServerRepository repository = MineCloud.instance().mongo().repositoryBy(ExternalServer.class);
+        ExternalServer server = new ExternalServer();
+        
+        server.setType(type);
+        
+        server.setNetwork(this);
+        server.setOnlinePlayers(new ArrayList<>());
+        server.setRamUsage(-1);
+        server.setId(server.type().name());
+        server.setMetadata(new ArrayList<>());
+        server.setAddress(type.address());
+        server.setPort(type.port());
+        server.setStartTime(System.currentTimeMillis());
+        
+        repository.save(server);
+        
+        //Send redis start notification (for Bungee)
+        try (MessageOutputStream os = new MessageOutputStream()) {
+            os.writeString(server.entityId());
+
+            MineCloud.instance().redis().channelBy("external-server-add").publish(os.toMessage());
+        } catch (IOException e) {
+            MineCloud.logger().log(Level.SEVERE, "Unable to publish server create message", e);
+        }
+    }
 
     public String name() {
         return entityId();
@@ -93,6 +135,10 @@ public class Network extends MongoEntity {
 
     public List<ServerNetworkMetadata> serverMetadata() {
         return serverMetadata;
+    }
+    
+    public List<ExternalServerType> externalServerTypes() {
+        return externalServers;
     }
 
     public Map<BungeeType, Integer> bungeeMetadata() {
@@ -114,6 +160,10 @@ public class Network extends MongoEntity {
         return ((ServerRepository) MineCloud.instance().mongo().repositoryBy(Server.class)).serversFor(this);
     }
     
+    public List<ExternalServer> externalServers() {
+        return ((ExternalServerRepository) MineCloud.instance().mongo().repositoryBy(ExternalServer.class)).serversFor(this);
+    }
+    
     public List<Bungee> bungees() {
         return ((BungeeRepository) MineCloud.instance().mongo().repositoryBy(Bungee.class)).serversFor(this);
     }
@@ -129,6 +179,14 @@ public class Network extends MongoEntity {
         return (int) repository.count(repository.createQuery()
                 .field("network").equal(this)
                 .field("type").equal(type));
+    }
+    
+    public boolean isExternalServerOnline(ExternalServerType type) {
+        ExternalServerRepository repository = MineCloud.instance().mongo().repositoryBy(ExternalServer.class);
+
+        return repository.count(repository.createQuery()
+                .field("network").equal(this)
+                .field("type").equal(type)) > 0;
     }
     
     public int serversAvailable(ServerType type) {

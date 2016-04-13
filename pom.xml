@@ -57,6 +57,7 @@
         <module>controller</module>
         <module>bungee</module>
         <module>bukkit</module>
+        <module>bukkit-external</module>
         <module>cli</module>
         <module>daemon-bash</module>
     </modules>

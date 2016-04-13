@@ -13,21 +13,41 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
-package io.minecloud.models.server.type;
+package io.minecloud.models.external;
 
-/**
- * Determines when the controller should launch new
- * servers
- */
-public enum ServerLaunchType {
-	/** 
-	 * Spawn new servers when a player count 
-	 * threshold has been met (right now, 75%) 
-	 */
-	PLAYERS,
-	/** 
-	 * Spawn new servers when there aren't any
-	 * tagged as "joinable"
-	 */
-	AVAILABLE;
+import org.mongodb.morphia.annotations.Entity;
+
+import io.minecloud.db.mongo.model.MongoEntity;
+import lombok.Setter;
+
+@Entity(value = "externla-server-types", noClassnameStored = true)
+public class ExternalServerType extends MongoEntity {
+    
+    @Setter
+    private int maxPlayers;
+    @Setter
+    private String address;
+    @Setter
+    private int port;
+    
+    public String name() {
+        return entityId();
+    }
+
+    public int maxPlayers() {
+        return maxPlayers;
+    }
+    
+    public String address() {
+        return address;
+    }
+    
+    public int port() {
+        return port;
+    }
+
+    public void setName(String name) {
+        setId(name);
+    }
+    
 }

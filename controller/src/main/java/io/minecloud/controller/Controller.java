@@ -23,6 +23,7 @@ import io.minecloud.db.redis.pubsub.SimpleRedisChannel;
 import io.minecloud.models.bungee.Bungee;
 import io.minecloud.models.bungee.BungeeRepository;
 import io.minecloud.models.bungee.type.BungeeType;
+import io.minecloud.models.external.ExternalServerType;
 import io.minecloud.models.network.Network;
 import io.minecloud.models.network.server.ServerNetworkMetadata;
 import io.minecloud.models.nodes.Node;
@@ -60,6 +61,7 @@ public class Controller {
             nodesUsed.clear();
 
             for (Network network : mongo.repositoryBy(Network.class).models()) {
+                //Ensure bungees are deployed
                 network.bungeeMetadata().forEach((type, amount) -> {
                     int difference = amount - network.bungeesOnline(type);
 
@@ -69,12 +71,11 @@ public class Controller {
                     }
                 });
 
+                //Remove invalid servers
                 network.servers().stream()
                         .filter((server) -> server.ramUsage() != -1 && server.port() == -1)
                         .forEach((server) -> mongo.repositoryBy(Server.class).delete(server));
                 
-                //Check for servers that have been removed from the network and delete them
-                //I would use lambdas here to fit the style... but they make Eclipse break very much -_-
                 for (Server server : network.servers()) {
                     boolean found = false;
                     for (ServerNetworkMetadata data : network.serverMetadata()) {
@@ -86,6 +87,14 @@ public class Controller {
                         mongo.repositoryBy(Server.class).delete(server);
                     }
                 }
+                
+                //Check external servers
+                for (ExternalServerType type : network.externalServerTypes()) {
+                    if (!network.isExternalServerOnline(type)) {
+                        network.setupExternalServer(type);
+                    }
+                }
+                
                 for (ServerNetworkMetadata metadata : network.serverMetadata()) {
                     ServerRepository repository = mongo.repositoryBy(Server.class);
                     List<Server> servers = repository.find(repository.createQuery()

@@ -22,6 +22,10 @@ import io.minecloud.models.bungee.Bungee;
 import io.minecloud.models.bungee.BungeeRepository;
 import io.minecloud.models.bungee.type.BungeeType;
 import io.minecloud.models.bungee.type.BungeeTypeRepository;
+import io.minecloud.models.external.ExternalServer;
+import io.minecloud.models.external.ExternalServerRepository;
+import io.minecloud.models.external.ExternalServerType;
+import io.minecloud.models.external.ExternalServerTypeRepository;
 import io.minecloud.models.network.Network;
 import io.minecloud.models.network.NetworkRepository;
 import io.minecloud.models.nodes.Node;
@@ -169,6 +173,9 @@ public final class MineCloud {
         mongo.loadRepository(ServerTypeRepository.create(mongo.datastore()), ServerType.class);
         mongo.loadRepository(ServerRepository.create(mongo.datastore()), Server.class);
         mongo.loadRepository(PluginTypeRepository.create(mongo.datastore()), PluginType.class);
+        //Cardinal
+        mongo.loadRepository(ExternalServerRepository.create(mongo.datastore()), ExternalServer.class);
+        mongo.loadRepository(ExternalServerTypeRepository.create(mongo.datastore()), ExternalServerType.class);
 
         try {
             Class<?> cls = Class.forName("org.mongodb.morphia.query.QueryValidator");

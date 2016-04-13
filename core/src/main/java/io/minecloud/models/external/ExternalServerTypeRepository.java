@@ -13,21 +13,22 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
-package io.minecloud.models.server.type;
+package io.minecloud.models.external;
 
-/**
- * Determines when the controller should launch new
- * servers
- */
-public enum ServerLaunchType {
-	/** 
-	 * Spawn new servers when a player count 
-	 * threshold has been met (right now, 75%) 
-	 */
-	PLAYERS,
-	/** 
-	 * Spawn new servers when there aren't any
-	 * tagged as "joinable"
-	 */
-	AVAILABLE;
+import io.minecloud.db.mongo.AbstractMongoRepository;
+import org.mongodb.morphia.Datastore;
+
+public class ExternalServerTypeRepository extends AbstractMongoRepository<ExternalServerType> {
+    
+    private ExternalServerTypeRepository(Datastore datastore) {
+        super(ExternalServerType.class, datastore);
+    }
+
+    public static ExternalServerTypeRepository create(Datastore datastore) {
+        return new ExternalServerTypeRepository(datastore);
+    }
+
+    public ExternalServerType serverTypeBy(String name) {
+        return findFirst(name);
+    }
 }
