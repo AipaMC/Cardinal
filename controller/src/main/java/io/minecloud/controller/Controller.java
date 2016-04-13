@@ -70,10 +70,12 @@ public class Controller {
                     }
                 });
 
+                //Delete invalid servers
                 network.servers().stream()
                     .filter((server) -> server.ramUsage() != -1 && server.port() == -1)
                     .forEach((server) -> mongo.repositoryBy(Server.class).delete(server));
                 
+                //Delete servers removed from the system
                 for (Server server : network.servers()) {
                     boolean found = false;
                     for (ServerNetworkMetadata data : network.serverMetadata()) {
@@ -81,7 +83,7 @@ public class Controller {
                             found = true;
                         }
                     }
-                    if (found == false) {
+                    if (!found) {
                         mongo.repositoryBy(Server.class).delete(server);
                     }
                 }
