@@ -14,5 +14,11 @@ public enum ServerLaunchType {
 	 * Spawn new servers when there aren't any
 	 * tagged as "joinable"
 	 */
-	AVAILABLE;
+	AVAILABLE,
+	/** 
+	 * Never spawns new servers. External servers are
+	 * ones that are not controlled by Cardinal, but are
+	 * instead just linked to it
+	 */
+	EXTERNAL;
 }

@@ -60,6 +60,14 @@ public class ServerType extends MongoEntity {
     /** Determines when this server type needs more instances */
     @Setter
     private ServerLaunchType launchType = ServerLaunchType.PLAYERS; //Default value
+    
+    /* If the server is external, this data will be filled */
+    /* ========================== */
+    @Setter
+    private String externalIP;
+    @Setter
+    private int externalPort;
+    /* ========================== */
 
     public String name() {
         return entityId();
@@ -91,6 +99,14 @@ public class ServerType extends MongoEntity {
     
     public ServerLaunchType launchType() {
     	return launchType;
+    }
+    
+    /* Used only for external servers */
+    public String externalIP() {
+    	return externalIP;
+    }
+    public int externalPort() {
+    	return externalPort;
     }
 
     public List<Plugin> plugins() {
