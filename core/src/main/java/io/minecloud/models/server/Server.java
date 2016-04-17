@@ -88,7 +88,7 @@ public class Server extends MongoEntity {
     }
     
     public boolean isJoinable() {
-    	return joinable;
+        return joinable;
     }
 
     public List<PlayerData> onlinePlayers() {

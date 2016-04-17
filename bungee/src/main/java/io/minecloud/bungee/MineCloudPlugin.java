@@ -206,6 +206,9 @@ public class MineCloudPlugin extends Plugin {
                     player.sendMessage(TextComponent.fromLegacyText(PREFIX + "Sending you to " + server.name()));
                     player.connect(info);
                 }));
+        
+        //Handles various subchannels. Save resources by using one master redis channel
+        redis.addChannel(SimpleRedisChannel.create("cardinal", redis).addCallback(new CardinalCallback()));
 
         getProxy().getScheduler().schedule(this, () -> getProxy().getScheduler().runAsync(this, () -> {
             if (mongo.db().getCollection("bungees").count(new BasicDBObject("_id", System.getenv("bungee_id"))) != 0) {

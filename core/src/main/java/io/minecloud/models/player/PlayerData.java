@@ -17,9 +17,16 @@ package io.minecloud.models.player;
 
 import lombok.Setter;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import io.minecloud.MineCloud;
+import io.minecloud.MineCloudException;
+import io.minecloud.db.redis.RedisDatabase;
+import io.minecloud.db.redis.msg.binary.MessageOutputStream;
+import io.minecloud.db.redis.pubsub.SimpleRedisChannel;
 
 public class PlayerData {
     @Setter
@@ -71,4 +78,21 @@ public class PlayerData {
     public boolean hasMetadata(String name) {
         return metadataBy(name).isPresent();
     }
+    
+    public void sendMessage(String message) {
+        RedisDatabase redis = MineCloud.instance().redis();
+
+        if (redis.channelBy("cardinal") == null) {
+            redis.addChannel(SimpleRedisChannel.create("cardinal", redis));
+        }
+
+        try (MessageOutputStream mos = new MessageOutputStream()){
+            mos.writeString(name());
+            mos.writeString(message);
+            redis.channelBy("message").publish(mos.toMessage());
+        } catch (IOException ex) {
+            throw new MineCloudException("Could not encode player message", ex);
+        }
+    }
+    
 }

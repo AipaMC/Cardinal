@@ -87,7 +87,7 @@ public final class MineCloud {
     }
 
     public static void runSetup(Properties properties, File file) throws IOException {
-    	try (Scanner scanner = new Scanner(System.in)){
+        try (Scanner scanner = new Scanner(System.in)){
             String[] hosts;
             String database;
             String username;
@@ -149,7 +149,7 @@ public final class MineCloud {
             logger().info("You can modify the database details in " + file.getAbsolutePath());
 
             properties.store(new FileOutputStream(file), "");
-    	}
+        }
     }
 
     public MongoDatabase mongo() {

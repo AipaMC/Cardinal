@@ -86,11 +86,11 @@ public class ServerType extends MongoEntity {
     }
     
     public boolean randomDefaultWorld() {
-    	return randomDefaultWorld;
+        return randomDefaultWorld;
     }
     
     public ServerLaunchType launchType() {
-    	return launchType;
+        return launchType;
     }
 
     public List<Plugin> plugins() {
@@ -102,18 +102,18 @@ public class ServerType extends MongoEntity {
     }
 
     public World defaultWorld() {
-    	//If random default worlds is on, choose one of the worlds registered
-    	//at random
-    	if (randomDefaultWorld) {
-    		int rand = new Random().nextInt(1 + worlds().size());
-    		if (rand == 0) {
-    			return defaultWorld;
-    		} else {
-    			return worlds().get(rand - 1);
-    		}
-    	} else  {
-            return defaultWorld;	
-    	}
+        //If random default worlds is on, choose one of the worlds registered
+        //at random
+        if (randomDefaultWorld) {
+            int rand = new Random().nextInt(1 + worlds().size());
+            if (rand == 0) {
+                return defaultWorld;
+            } else {
+                return worlds().get(rand - 1);
+            }
+        } else  {
+            return defaultWorld;    
+        }
     }
 
     public List<World> worlds() {
