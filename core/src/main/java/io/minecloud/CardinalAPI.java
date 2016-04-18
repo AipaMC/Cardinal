@@ -16,7 +16,9 @@
 package io.minecloud;
 
 import java.util.List;
+import java.util.UUID;
 
+import io.minecloud.models.player.PlayerData;
 import io.minecloud.models.server.Server;
 import io.minecloud.models.server.ServerRepository;
 
@@ -29,18 +31,58 @@ public class CardinalAPI {
     
     /**
      * Gets the server instance a player is currently on
-     * @param player Player's username
+     * @param username Player's username
      * @return Server the player is on or null if offline
      */
-    public static Server getServerPlayerIsOn(String player) {
+    public static Server getServerPlayerIsOn(String username) {
         ServerRepository repository = MineCloud.instance().mongo().repositoryBy(Server.class);
         List<Server> servers = repository.find(repository.createQuery()
                 .field("port").notEqual(-1)
                 .field("ramUsage").notEqual(-1))
                 .asList();
         for (Server server : servers) {
-            if (server.playerBy(player) != null) {
+            if (server.playerBy(username) != null) {
                 return server;
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * Gets an instance of an online player
+     * @param username Player's username
+     * @return PlayerData that represents the online player or null if offline
+     */
+    public static PlayerData getPlayer(String username) {
+        ServerRepository repository = MineCloud.instance().mongo().repositoryBy(Server.class);
+        List<Server> servers = repository.find(repository.createQuery()
+                .field("port").notEqual(-1)
+                .field("ramUsage").notEqual(-1))
+                .asList();
+        for (Server server : servers) {
+            PlayerData data = server.playerBy(username);
+            if (data != null) {
+                return data;
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * Gets an instance of an online player
+     * @param uuid Player's UUID
+     * @return PlayerData that represents the online player or null if offline
+     */
+    public static PlayerData getPlayer(UUID uuid) {
+        ServerRepository repository = MineCloud.instance().mongo().repositoryBy(Server.class);
+        List<Server> servers = repository.find(repository.createQuery()
+                .field("port").notEqual(-1)
+                .field("ramUsage").notEqual(-1))
+                .asList();
+        for (Server server : servers) {
+            PlayerData data = server.playerBy(uuid);
+            if (data != null) {
+                return data;
             }
         }
         return null;

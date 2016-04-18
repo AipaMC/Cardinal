@@ -20,6 +20,7 @@ import com.mongodb.BasicDBObject;
 import io.minecloud.Cached;
 import io.minecloud.MineCloud;
 import io.minecloud.MineCloudException;
+import io.minecloud.bungee.cardinal.CardinalCallback;
 import io.minecloud.db.mongo.MongoDatabase;
 import io.minecloud.db.redis.RedisDatabase;
 import io.minecloud.db.redis.msg.MessageType;
@@ -33,6 +34,7 @@ import io.minecloud.models.plugins.PluginType;
 import io.minecloud.models.server.Server;
 import io.minecloud.models.server.ServerRepository;
 import io.minecloud.models.server.type.ServerType;
+import lombok.Getter;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
@@ -59,12 +61,20 @@ public class MineCloudPlugin extends Plugin {
     public static final String PREFIX = "" + ChatColor.BLUE + ChatColor.BOLD + "Cardinal> " 
             + ChatColor.AQUA;
     
+    @Getter
+    private static MineCloudPlugin instance;
+    
     Cached<Bungee> bungee;
     MongoDatabase mongo;
     RedisDatabase redis;
+    
+    @Getter
+    private CardinalCallback cardinalExtension;
 
     @Override
     public void onEnable() {
+        instance = this;
+        
         MineCloud.environmentSetup();
 
         mongo = MineCloud.instance().mongo();
@@ -208,7 +218,8 @@ public class MineCloudPlugin extends Plugin {
                 }));
         
         //Handles various subchannels. Save resources by using one master redis channel
-        redis.addChannel(SimpleRedisChannel.create("cardinal", redis).addCallback(new CardinalCallback()));
+        cardinalExtension = new CardinalCallback();
+        redis.addChannel(SimpleRedisChannel.create("cardinal", redis).addCallback(cardinalExtension));
 
         getProxy().getScheduler().schedule(this, () -> getProxy().getScheduler().runAsync(this, () -> {
             if (mongo.db().getCollection("bungees").count(new BasicDBObject("_id", System.getenv("bungee_id"))) != 0) {

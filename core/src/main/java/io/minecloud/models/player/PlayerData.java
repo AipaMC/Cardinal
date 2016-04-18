@@ -89,7 +89,7 @@ public class PlayerData {
         try (MessageOutputStream mos = new MessageOutputStream()){
             mos.writeString(name());
             mos.writeString(jsonMessage);
-            redis.channelBy("message").publish(mos.toMessage());
+            redis.channelBy("cardinal").publish(mos.toMessage());
         } catch (IOException ex) {
             throw new MineCloudException("Could not encode player message", ex);
         }
