@@ -86,7 +86,8 @@ public class PlayerData {
             redis.addChannel(SimpleRedisChannel.create("cardinal", redis));
         }
 
-        try (MessageOutputStream mos = new MessageOutputStream()){
+        try (MessageOutputStream mos = new MessageOutputStream()) {
+            mos.writeString("message"); //Subchannel
             mos.writeString(name());
             mos.writeString(jsonMessage);
             redis.channelBy("cardinal").publish(mos.toMessage());

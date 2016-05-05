@@ -15,9 +15,13 @@
  */
 package io.minecloud;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
+import io.minecloud.db.redis.RedisDatabase;
+import io.minecloud.db.redis.msg.binary.MessageOutputStream;
+import io.minecloud.db.redis.pubsub.SimpleRedisChannel;
 import io.minecloud.models.player.PlayerData;
 import io.minecloud.models.server.Server;
 import io.minecloud.models.server.ServerRepository;
@@ -86,6 +90,28 @@ public class CardinalAPI {
             }
         }
         return null;
+    }
+    
+    /**
+     * Kick a player back to the lobby
+     * @param uuid UUID of player to kick
+     * @param reasonMessage Message to send to the kicked player
+     */
+    public static void kickPlayer(UUID uuid, String reasonMessage) {
+        RedisDatabase redis = MineCloud.instance().redis();
+
+        if (redis.channelBy("cardinal") == null) {
+            redis.addChannel(SimpleRedisChannel.create("cardinal", redis));
+        }
+
+        try (MessageOutputStream mos = new MessageOutputStream()) {
+            mos.writeString("kick");
+            mos.writeString(uuid.toString());
+            mos.writeString(reasonMessage);
+            redis.channelBy("cardinal").publish(mos.toMessage());
+        } catch (IOException ex) {
+            throw new MineCloudException("Could not encode kick message", ex);
+        }
     }
 
 }
