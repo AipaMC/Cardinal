@@ -113,5 +113,30 @@ public class CardinalAPI {
             throw new MineCloudException("Could not encode kick message", ex);
         }
     }
+    
+    /**
+     * Send a group of players to the same server
+     * @param server Server ID to send them to
+     * @param players Players to send
+     */
+    public static void partyJoinServer(String server, List<UUID> players) {
+        RedisDatabase redis = MineCloud.instance().redis();
+
+        if (redis.channelBy("cardinal") == null) {
+            redis.addChannel(SimpleRedisChannel.create("cardinal", redis));
+        }
+
+        try (MessageOutputStream mos = new MessageOutputStream()) {
+            mos.writeString("partyjoin");
+            mos.writeString(server);
+            mos.writeVarInt32(players.size());
+            for (UUID player : players) {
+                mos.writeString(player.toString());
+            }
+            redis.channelBy("cardinal").publish(mos.toMessage());
+        } catch (IOException ex) {
+            throw new MineCloudException("Could not encode kick message", ex);
+        }
+    }
 
 }

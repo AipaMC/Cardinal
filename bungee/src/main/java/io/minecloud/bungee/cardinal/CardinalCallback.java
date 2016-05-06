@@ -19,11 +19,13 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.UUID;
 
+import io.minecloud.bungee.MineCloudPlugin;
 import io.minecloud.db.redis.msg.Message;
 import io.minecloud.db.redis.msg.MessageType;
 import io.minecloud.db.redis.msg.binary.MessageInputStream;
 import io.minecloud.db.redis.pubsub.ChannelCallback;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.chat.ComponentSerializer;
@@ -37,6 +39,7 @@ public class CardinalCallback implements ChannelCallback {
         
         channels.put("message", new MessageSubChannel());
         channels.put("kick", new KickSubChannel());
+        channels.put("partyjoin", new PartyJoinSubChannel());
     }
 
     @Override
@@ -87,6 +90,31 @@ public class CardinalCallback implements ChannelCallback {
                         player.connect(info);
                     }
                     player.sendMessage(ComponentSerializer.parse(message));
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    
+    private class PartyJoinSubChannel implements SubChannel {
+        @Override
+        public void call(MessageInputStream stream) {
+            try {
+                String server = stream.readString();
+                ServerInfo info = ProxyServer.getInstance().getServerInfo(server);
+                if (info == null) {
+                    return;
+                }
+                
+                int players = stream.readVarInt32();
+                for (int i=0; i < players; i++) {
+                    UUID uuid = UUID.fromString(stream.readString());
+                    ProxiedPlayer player = ProxyServer.getInstance().getPlayer(uuid);
+                    if (player != null) {
+                        player.sendMessage(TextComponent.fromLegacyText(MineCloudPlugin.PREFIX + "Sending you to " + server));
+                        player.connect(info);
+                    }
                 }
             } catch (IOException e) {
                 e.printStackTrace();
