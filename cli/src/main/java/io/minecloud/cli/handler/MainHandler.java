@@ -58,4 +58,9 @@ public class MainHandler extends AbstractHandler {
         enterShell(new NodeHandler(name), "node");
     }
     
+    @Command(name = "bulk")
+    public void bulk(@Param(name = "network") String name) {
+        enterShell(new BulkUtilHandler(name), "bulk");
+    }
+    
 }
