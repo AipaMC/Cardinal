@@ -49,7 +49,7 @@ public class ServerTypeHandler extends AbstractHandler {
 
     @Command
     public String dedicatedRam(@Param(name = "amount (mb)") int amount) {
-        if (amount < 500) {
+        if (amount < 200) {
             return "Invalid ram amount!";
         }
 
