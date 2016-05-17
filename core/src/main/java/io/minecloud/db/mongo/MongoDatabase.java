@@ -68,8 +68,8 @@ public class MongoDatabase implements Database {
 
     @Override
     public void setup() {
-        MongoClientOptions options = MongoClientOptions.builder().connectionsPerHost(10000)
-                .heartbeatConnectTimeout(10)
+        MongoClientOptions options = MongoClientOptions.builder().connectionsPerHost(10)
+                .heartbeatConnectTimeout(10000)
                 .heartbeatFrequency(10)
                 .build();
         List<ServerAddress> hosts = new ArrayList<>();
