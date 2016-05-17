@@ -8,14 +8,14 @@ mvn clean package
 echo "Build complete... applying updates"
 
 echo "Updating daemon..."
-service minecloud-daemon stop
+/etc/init.d/minecloud-daemon stop
 cp daemon-bash/target/daemon-bash-1.0.jar /opt/minecloud/daemon/bin/daemon.jar
-service minecloud-daemon start
+/etc/init.d/minecloud-daemon start
 
 echo "Updating controller..."
-service minecloud-controller stop
+/etc/init.d/minecloud-controller stop
 cp controller/target/controller-1.0.jar /opt/minecloud/controller/bin/controller.jar
-service minecloud-controller start
+/etc/init.d/minecloud-controller start
 
 echo "Updating cli..."
 cp cli/target/cli-1.0.jar /opt/minecloud/cli/bin/cli.jar

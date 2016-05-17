@@ -232,8 +232,9 @@ public class NetworkTypeHandler extends AbstractHandler {
 
         List<Node> nodes = type.nodes();
 
-        if (!nodes.contains(node)) {
-            return nodeName + " is not on the network!";
+        if (!nodes.stream()
+                .anyMatch((n) -> n.name().equalsIgnoreCase(node.name()))) {
+            return nodeName + " is not on the network";
         }
 
         nodes.remove(node);
