@@ -49,6 +49,8 @@ public class MineCloudPlugin extends JavaPlugin {
                 config.getString("mongo_username"), config.getString("mongo_password").toCharArray(), 
                 config.getString("mongo_database"));
         MineCloud.instance().initiateMongo(creds);
+        
+        mongo = MineCloud.instance().mongo();
 
         type = mongo.repositoryBy(ExternalServerType.class)
                 .findFirst(config.getString("server_type"));
@@ -58,8 +60,6 @@ public class MineCloudPlugin extends JavaPlugin {
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
-        
-        mongo = MineCloud.instance().mongo();
 
         //Update task
         new BukkitRunnable() {
