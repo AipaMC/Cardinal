@@ -86,7 +86,7 @@ public class MongoDatabase implements Database {
         MongoClient client;
 
         if (credentials.username() != null && !credentials.username().equalsIgnoreCase("")) {
-            MongoCredential credential = MongoCredential.createMongoCRCredential(credentials.username(),
+            MongoCredential credential = MongoCredential.createScramSha1Credential(credentials.username(),
                     credentials.database(), credentials.password());
 
             client = new MongoClient(hosts, Arrays.asList(credential), options);
