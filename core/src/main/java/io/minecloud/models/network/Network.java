@@ -50,6 +50,7 @@ public class Network extends MongoEntity {
     
     /** Any linked external servers on this network */
     @Setter
+    @Reference(lazy = true)
     private List<ExternalServerType> externalServers;
     
     private Map<String, Integer> bungees;
