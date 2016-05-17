@@ -15,6 +15,7 @@
  */
 package io.minecloud.bungee;
 
+import io.minecloud.bungee.cardinal.ReconnectEvent;
 import io.minecloud.models.server.Server;
 import io.minecloud.models.server.ServerRepository;
 import net.md_5.bungee.api.AbstractReconnectHandler;
@@ -35,7 +36,12 @@ public class ReconnectHandler extends AbstractReconnectHandler {
     @Override
     protected ServerInfo getStoredServer(ProxiedPlayer proxiedPlayer) {
         ServerInfo info = ReconnectHandler.getForcedHost(proxiedPlayer.getPendingConnection());
-
+        
+        ReconnectEvent event = new ReconnectEvent(proxiedPlayer);
+        event.setTarget(info);
+        plugin.getProxy().getPluginManager().callEvent(event);
+        info = event.getTarget();
+        
         if (info == null) {
             ServerRepository repository = plugin.mongo.repositoryBy(Server.class);
             List<Server> servers = repository.find(repository.createQuery()
