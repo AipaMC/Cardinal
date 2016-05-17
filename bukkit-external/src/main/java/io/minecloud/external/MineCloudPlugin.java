@@ -46,7 +46,7 @@ public class MineCloudPlugin extends JavaPlugin {
     public void onEnable() {
         FileConfiguration config = this.getConfig();
         Credentials creds = new Credentials(config.getString("mongo_host").split(";"), 
-                config.getString("monog_username"), config.getString("mongo_password").toCharArray(), 
+                config.getString("mongo_username"), config.getString("mongo_password").toCharArray(), 
                 config.getString("mongo_database"));
         MineCloud.instance().initiateMongo(creds);
 
