@@ -116,9 +116,7 @@ public class MineCloudPlugin extends JavaPlugin {
     private ExternalServer getServerNoCache() {
         ExternalServerRepository repository = mongo.repositoryBy(ExternalServer.class);
         List<ExternalServer> servers = repository.find(repository.createQuery()
-                .field("type").equal(type)
-                .field("port").notEqual(-1)
-                .field("ramUsage").notEqual(-1))
+                .field("type").equal(type))
                 .asList();
         return servers.get(0);
     }
