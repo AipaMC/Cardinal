@@ -237,7 +237,9 @@ public class NetworkTypeHandler extends AbstractHandler {
             return nodeName + " is not on the network";
         }
 
-        nodes.remove(node);
+        new HashSet<>(nodes).stream()
+        .filter((n) -> n.name().equalsIgnoreCase(node.name()))
+        .forEach(nodes::remove);
         return nodeName + " has been removed from the network!";
     }
     
