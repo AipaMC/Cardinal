@@ -212,6 +212,12 @@ public class ServerTypeHandler extends AbstractHandler {
 
         return "Added world " + world + " version " + version + " to the extra worlds";
     }
+    
+    @Command
+    public String abbreviation(@Param(name = "abbreviation") String abv) {
+        type.setAbbreviation(abv);
+        return "Set abbreviation to " + abv;
+    }
 
     @Command
     public String push() {

@@ -60,9 +60,16 @@ public class ServerType extends MongoEntity {
     /** Determines when this server type needs more instances */
     @Setter
     private ServerLaunchType launchType = ServerLaunchType.PLAYERS; //Default value
+    /** Simple abbreviation for the server type to be used in display */
+    @Setter
+    private String abbreviation = "";
 
     public String name() {
         return entityId();
+    }
+    
+    public String nameAbv() {
+        return abbreviation;
     }
 
     public int maxPlayers() {

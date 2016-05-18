@@ -142,6 +142,10 @@ public class Server extends MongoEntity {
     public String name() {
         return entityId();
     }
+    
+    public String nameAbv() {
+        return type.nameAbv() + number + node.name();
+    }
 
     public List<ServerMetadata> metadata() {
         if (metadata == null) {
