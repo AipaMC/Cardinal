@@ -260,6 +260,26 @@ public class NetworkTypeHandler extends AbstractHandler {
         
         return "Restarting all servers and bungees...";
     }
+    
+    @Command
+    public String restartServers() {
+        type.servers().forEach(server -> {
+            MineCloud.instance().mongo().repositoryBy(Server.class).delete(server);
+        });
+        //Then external servers (just a refresh, doesn't actually restart them)
+        type.externalServers().forEach(server -> {
+            MineCloud.instance().mongo().repositoryBy(ExternalServer.class).delete(server);
+        });
+        return "Restarting all servers...";
+    }
+    
+    @Command
+    public String restartBungees() {
+        type.bungees().forEach(bungee -> {
+            MineCloud.instance().mongo().repositoryBy(Bungee.class).delete(bungee);
+        });
+        return "Restarting all bungees...";
+    }
 
     @Command
     public String push() {
