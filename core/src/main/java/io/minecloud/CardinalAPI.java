@@ -22,6 +22,8 @@ import java.util.UUID;
 import io.minecloud.db.redis.RedisDatabase;
 import io.minecloud.db.redis.msg.binary.MessageOutputStream;
 import io.minecloud.db.redis.pubsub.SimpleRedisChannel;
+import io.minecloud.models.external.ExternalServer;
+import io.minecloud.models.external.ExternalServerRepository;
 import io.minecloud.models.player.PlayerData;
 import io.minecloud.models.server.Server;
 import io.minecloud.models.server.ServerRepository;
@@ -58,18 +60,7 @@ public class CardinalAPI {
      * @return PlayerData that represents the online player or null if offline
      */
     public static PlayerData getPlayer(String username) {
-        ServerRepository repository = MineCloud.instance().mongo().repositoryBy(Server.class);
-        List<Server> servers = repository.find(repository.createQuery()
-                .field("port").notEqual(-1)
-                .field("ramUsage").notEqual(-1))
-                .asList();
-        for (Server server : servers) {
-            PlayerData data = server.playerBy(username);
-            if (data != null) {
-                return data;
-            }
-        }
-        return null;
+        return getPlayerInternal(null, username);
     }
     
     /**
@@ -78,13 +69,38 @@ public class CardinalAPI {
      * @return PlayerData that represents the online player or null if offline
      */
     public static PlayerData getPlayer(UUID uuid) {
+        return getPlayerInternal(uuid, null);
+    }
+    
+    private static PlayerData getPlayerInternal(UUID uuid, String username) {
+        //First search on dynamic servers
         ServerRepository repository = MineCloud.instance().mongo().repositoryBy(Server.class);
         List<Server> servers = repository.find(repository.createQuery()
                 .field("port").notEqual(-1)
                 .field("ramUsage").notEqual(-1))
                 .asList();
         for (Server server : servers) {
-            PlayerData data = server.playerBy(uuid);
+            PlayerData data;
+            if (uuid != null) {
+                data = server.playerBy(uuid);
+            } else {
+                data = server.playerBy(username);
+            }
+            if (data != null) {
+                return data;
+            }
+        }
+        
+        //Then on external servers
+        ExternalServerRepository exRepo = MineCloud.instance().mongo().repositoryBy(ExternalServer.class);
+        List<ExternalServer> exServers = exRepo.find().asList();
+        for (ExternalServer server : exServers) {
+            PlayerData data;
+            if (uuid != null) {
+                data = server.playerBy(uuid);
+            } else {
+                data = server.playerBy(username);
+            }
             if (data != null) {
                 return data;
             }
