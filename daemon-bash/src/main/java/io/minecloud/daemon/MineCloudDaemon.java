@@ -261,7 +261,7 @@ public class MineCloudDaemon {
 
             if (bungeeRepo.findOne("_id", node.publicIp()) != null) {
                 try {
-                    if ((System.currentTimeMillis() - Deployer.timeStarted("bungee")) > 600_000L & !Deployer.isRunning("bungee")) {
+                    if ((System.currentTimeMillis() - Deployer.timeStarted("bungee")) > 600_000L && !Deployer.isRunning("bungee")) {
                         bungeeRepo.deleteById(node.publicIp());
                         MineCloud.logger().info("Removed dead bungee (" + node.publicIp() + ")");
                     }
@@ -300,6 +300,20 @@ public class MineCloudDaemon {
                     names.remove(s.name());
                 }
             });
+            
+            /* Bungee startup timeout */
+            if (bungeeRepo.findOne("_id", node.publicIp()) != null) {
+                try {
+                    if ((System.currentTimeMillis() - Deployer.timeStarted("bungee")) < 40_000L && !Deployer.isRunning("bungee")) {
+                        bungeeRepo.deleteById(node.publicIp());
+                        MineCloud.logger().info("Bungee failed to start (" + node.publicIp() + ")");
+                    }
+                } catch (IOException | InterruptedException ex) {
+                    if (!(ex instanceof NoSuchFileException)) {
+                        MineCloud.logger().log(Level.SEVERE, "Was unable to check if bungee is running", ex);
+                    }
+                }
+            }
 
             try {
                 Thread.sleep(2000L);
