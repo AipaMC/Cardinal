@@ -343,12 +343,12 @@ public class MineCloudPlugin extends Plugin {
             if (f.isDirectory()) {
                 File newContainer = new File(folderContainer, f.getName());
                 copyFolder(f, newContainer);
-            }
-
-            try {
-                Files.copy(f, new File(folderContainer, f.getName()));
-            } catch (IOException ex) {
-                throw new MineCloudException(ex);
+            } else {
+                try {
+                    Files.copy(f, new File(folderContainer, f.getName()));
+                } catch (IOException ex) {
+                    throw new MineCloudException(ex);
+                }   
             }
         }
     }
