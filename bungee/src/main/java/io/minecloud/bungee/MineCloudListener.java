@@ -44,17 +44,12 @@ public class MineCloudListener implements Listener {
     @EventHandler
     public void onPing(ProxyPingEvent event) {
         ServerPing ping = event.getResponse();
-        int online = 0;
-        int max = 0;
 
         if (ping == null) {
             ping = new ServerPing();
         }
 
-        if (onlinePlayers != -1 && (System.currentTimeMillis() - lastUpdated) < 5000L) {
-            online = onlinePlayers;
-            max = maxOnline;
-        } else {
+        if (onlinePlayers == -1 || (System.currentTimeMillis() - lastUpdated) >= 5000L) {
             Bungee bungee = plugin.bungee();
 
             if (bungee == null)
@@ -69,22 +64,23 @@ public class MineCloudListener implements Listener {
                     .field("network").equal(bungee.network()))
                     .asList();
 
+            int online = 0;
             for (Server server : servers) {
                 online += server.onlinePlayers().size();
-                max += server.type().maxPlayers();
+                //max += server.type().maxPlayers();
             }
             
             for (ExternalServer server : externalServers) {
                 online += server.onlinePlayers().size();
-                max += server.type().maxPlayers();
+                //max += server.type().maxPlayers();
             }
 
             onlinePlayers = online;
-            maxOnline = max;
+            maxOnline = bungee.network().pingCap();
             lastUpdated = System.currentTimeMillis();
         }
 
-        ping.setPlayers(new ServerPing.Players(max, online, ping.getPlayers().getSample()));
+        ping.setPlayers(new ServerPing.Players(maxOnline, onlinePlayers, ping.getPlayers().getSample()));
 
         event.setResponse(ping);
     }

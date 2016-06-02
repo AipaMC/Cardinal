@@ -57,6 +57,10 @@ public class Network extends MongoEntity {
     @Setter
     @Reference(lazy = true)
     private List<Node> nodes;
+    
+    /** Max players to show in server list ping */
+    @Setter
+    private int pingCap = -1;
 
     public void deployBungee(BungeeType type, Node node) {
         if (!bungees.containsKey(type.name())) {
@@ -218,6 +222,10 @@ public class Network extends MongoEntity {
 
     public void setName(String name) {
         setId(name);
+    }
+    
+    public int pingCap() {
+        return pingCap;
     }
 
     public void setBungees(Map<BungeeType, Integer> map) {

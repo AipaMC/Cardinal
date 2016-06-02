@@ -280,11 +280,17 @@ public class NetworkTypeHandler extends AbstractHandler {
         });
         return "Restarting all bungees...";
     }
+    
+    @Command
+    public String pingCap(@Param(name = "cap") int cap) {
+    	type.setPingCap(cap);
+    	return "Set ping cap to: " + cap;
+    }
 
     @Command
     public String push() {
-        if (type.bungeeMetadata() == null || type.nodes() == null) {
-            return "Required fields (bungee, nodes) have not been set by the user! Unable to push modifications";
+        if (type.bungeeMetadata() == null || type.nodes() == null || type.pingCap() == -1) {
+            return "Required fields (bungee, nodes, pingCap) have not been set by the user! Unable to push modifications";
         }
 
         MineCloud.instance().mongo().repositoryBy(Network.class).save(type);
