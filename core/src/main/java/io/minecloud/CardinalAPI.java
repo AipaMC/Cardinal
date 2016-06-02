@@ -38,7 +38,7 @@ public class CardinalAPI {
     /**
      * Gets the server instance a player is currently on
      * @param username Player's username
-     * @return Server the player is on or null if offline
+     * @return Server the player is on or null if offline (or on an non-dynamic server)
      */
     public static Server getServerPlayerIsOn(String username) {
         ServerRepository repository = MineCloud.instance().mongo().repositoryBy(Server.class);
@@ -47,6 +47,22 @@ public class CardinalAPI {
                 .field("ramUsage").notEqual(-1))
                 .asList();
         for (Server server : servers) {
+            if (server.playerBy(username) != null) {
+                return server;
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * Gets the external server instance a player is currently on
+     * @param username Player's username
+     * @return Server the player is on or null if offline (or on a non-external server)
+     */
+    public static ExternalServer getExternalServerPlayerIsOn(String username) {
+        ExternalServerRepository repository = MineCloud.instance().mongo().repositoryBy(ExternalServer.class);
+        List<ExternalServer> servers = repository.find().asList();
+        for (ExternalServer server : servers) {
             if (server.playerBy(username) != null) {
                 return server;
             }
