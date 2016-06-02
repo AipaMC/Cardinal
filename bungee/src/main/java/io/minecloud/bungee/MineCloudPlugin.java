@@ -354,17 +354,17 @@ public class MineCloudPlugin extends Plugin {
     }
 
     public void addServer(Server server) {
-        addServer(server.name(), server.node().privateIp(), server.port());
+        addServer(server.name(), server.node().privateIp(), server.port(), "");
     }
     
     public void addServer(ExternalServer server) {
-        addServer(server.name(), server.address(), server.port());
+        addServer(server.name(), server.address(), server.port(), server.type().motd());
     }
     
-    private void addServer(String name, String ip, int port) {
+    private void addServer(String name, String ip, int port, String motd) {
         ServerInfo info = getProxy().constructServerInfo(name,
                 new InetSocketAddress(ip, port),
-                "", false);
+                motd, false);
 
         getProxy().getServers().put(name, info);
         getLogger().info("Added " + name + " to server list, " + ip +

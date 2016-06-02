@@ -29,6 +29,8 @@ public class ExternalServerType extends MongoEntity {
     private String address;
     @Setter
     private int port;
+    @Setter
+    private String motd;
     
     public String name() {
         return entityId();
@@ -44,6 +46,10 @@ public class ExternalServerType extends MongoEntity {
     
     public int port() {
         return port;
+    }
+    
+    public String motd() {
+        return motd;
     }
 
     public void setName(String name) {

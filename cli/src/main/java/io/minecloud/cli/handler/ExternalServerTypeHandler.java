@@ -63,6 +63,12 @@ public class ExternalServerTypeHandler extends AbstractHandler {
         type.setPort(port);
         return "Set port to " + port;
     }
+    
+    @Command
+    public String motd(@Param(name = "motd") String motd) {
+        type.setMotd(motd);
+        return "Set motd to " + motd;
+    }
 
     @Command
     public String push() {
