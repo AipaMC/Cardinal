@@ -101,7 +101,7 @@ public class Server extends MongoEntity {
 
     public PlayerData playerBy(String name) {
         Optional<PlayerData> optional = onlinePlayers().stream()
-                .filter((pd) -> pd.name().equals(name))
+                .filter((pd) -> pd.name().equalsIgnoreCase(name))
                 .findFirst();
 
         return optional.isPresent() ? optional.get() : null;
