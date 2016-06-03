@@ -125,7 +125,7 @@ public class Controller {
                     } else if (metadata.type().launchType() == ServerLaunchType.AVAILABLE) {
                         int availableServers = network.serversAvailable(metadata.type());
                         //No servers available? Launch one!
-                        neededServers = availableServers == 0 ? 1 : 0;
+                        neededServers = Math.max(0, metadata.minimumAmount() - availableServers);
                     }
                     
                     //Don't go over the maximum server count
