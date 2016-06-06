@@ -295,7 +295,7 @@ public class MineCloudPlugin extends Plugin {
             externalServers.removeIf((s) -> s.port() == -1);
             externalServers.forEach(this::addServer);
 
-            getProxy().setReconnectHandler(new ReconnectHandler(this));
+            getProxy().setReconnectHandler(new CustomReconnectHandler(this));
             getProxy().getPluginManager().registerListener(this, new MineCloudListener(this));
 
             // release plugin manager lock

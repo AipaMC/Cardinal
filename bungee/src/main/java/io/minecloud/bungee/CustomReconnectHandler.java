@@ -19,6 +19,7 @@ import io.minecloud.bungee.cardinal.ReconnectEvent;
 import io.minecloud.models.server.Server;
 import io.minecloud.models.server.ServerRepository;
 import net.md_5.bungee.api.AbstractReconnectHandler;
+import net.md_5.bungee.api.ReconnectHandler;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -26,17 +27,23 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import java.util.Collections;
 import java.util.List;
 
-public class ReconnectHandler extends AbstractReconnectHandler {
+public class CustomReconnectHandler implements ReconnectHandler {
     private MineCloudPlugin plugin;
 
-    ReconnectHandler(MineCloudPlugin plugin) {
+    CustomReconnectHandler(MineCloudPlugin plugin) {
         this.plugin = plugin;
     }
-
+    
     @Override
-    protected ServerInfo getStoredServer(ProxiedPlayer proxiedPlayer) {
-        ServerInfo info = ReconnectHandler.getForcedHost(proxiedPlayer.getPendingConnection());
+    public ServerInfo getServer(ProxiedPlayer proxiedPlayer) {
+        ServerInfo info = AbstractReconnectHandler.getForcedHost(proxiedPlayer.getPendingConnection());
         
+        //Acknowledge forced hosts when players login
+        if (proxiedPlayer.getServer() == null && info != null) {
+            return info;
+        }
+        
+        //Allow other plugins to change the server to reconnect to
         ReconnectEvent event = new ReconnectEvent(proxiedPlayer);
         event.setTarget(info);
         plugin.getProxy().getPluginManager().callEvent(event);
@@ -67,7 +74,6 @@ public class ReconnectHandler extends AbstractReconnectHandler {
 
     @Override
     public void setServer(ProxiedPlayer proxiedPlayer) {
-
     }
 
     @Override
@@ -77,4 +83,5 @@ public class ReconnectHandler extends AbstractReconnectHandler {
     @Override
     public void close() {
     }
+
 }
