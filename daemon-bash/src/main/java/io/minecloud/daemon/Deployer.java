@@ -57,6 +57,9 @@ public final class Deployer {
         server.setRamUsage(-1);
         server.setId(server.type().name() + server.number());
         server.setMetadata(metadata);
+        if (PORT_COUNTER.get() >= 65535) {
+        	PORT_COUNTER.set(32812);
+        }
         server.setPort(PORT_COUNTER.incrementAndGet());
         server.setContainerId("null");
         server.setStartTime(System.currentTimeMillis());

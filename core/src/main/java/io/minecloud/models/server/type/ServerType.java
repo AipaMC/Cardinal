@@ -118,8 +118,8 @@ public class ServerType extends MongoEntity {
             } else {
                 return worlds().get(rand - 1);
             }
-        } else  {
-            return defaultWorld;    
+        } else {
+            return defaultWorld;
         }
     }
 
