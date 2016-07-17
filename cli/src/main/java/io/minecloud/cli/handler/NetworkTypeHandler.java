@@ -274,6 +274,14 @@ public class NetworkTypeHandler extends AbstractHandler {
     }
     
     @Command
+    public String refreshExternal() {
+        type.externalServers().forEach(server -> {
+            MineCloud.instance().mongo().repositoryBy(ExternalServer.class).delete(server);
+        });
+        return "Refreshing external servers...";
+    }
+    
+    @Command
     public String restartBungees() {
         type.bungees().forEach(bungee -> {
             MineCloud.instance().mongo().repositoryBy(Bungee.class).delete(bungee);
