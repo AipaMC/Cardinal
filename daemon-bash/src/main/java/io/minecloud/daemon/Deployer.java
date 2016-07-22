@@ -68,12 +68,12 @@ public final class Deployer extends Thread {
     	while (true) {
     		if (!launchQueue.isEmpty()) {
     			deployServer(launchQueue.poll());
-    			try {
-					Thread.sleep(7500);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
     		}
+			try {
+				Thread.sleep(7500);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
     	}
     }
     
