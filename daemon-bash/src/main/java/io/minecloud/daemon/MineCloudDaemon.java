@@ -195,6 +195,9 @@ public class MineCloudDaemon {
         OptionalInt port = repository.find(repository.createQuery().field("node").equal(node()))
                 .asList().stream().mapToInt(Server::port).sorted().max();
         Deployer.PORT_COUNTER.set((port.isPresent() ? port.getAsInt() : 32811) + 1);
+        
+        //Start deployer
+        Deployer.startThread();
 
         while (!Thread.currentThread().isInterrupted()) {
             this.redis.connected(); //Checks for Redis death, if it's dead it will reconnect.

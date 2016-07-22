@@ -34,29 +34,67 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 
-public final class Deployer {
+public final class Deployer extends Thread {
     public static final AtomicInteger PORT_COUNTER = new AtomicInteger(32812);
+    
+    private static final Deployer instance = new Deployer();
+    
+    private final Queue<LaunchData> launchQueue = new ConcurrentLinkedQueue<>();
+    
+    private static class LaunchData {
+    	private Network network;
+    	private ServerType type;
+    	private List<ServerMetadata> metadata;
+    	public LaunchData(Network network, ServerType type, List<ServerMetadata> metadata) {
+    		this.network = network;
+    		this.type = type;
+    		this.metadata = metadata;
+    	}
+    }
 
     private Deployer() {
     }
-
+    
+    public static void startThread() {
+    	instance.start();
+    }
+    
+    @Override
+    public void run() {
+    	while (true) {
+    		if (!launchQueue.isEmpty()) {
+    			deployServer(launchQueue.poll());
+    			try {
+					Thread.sleep(7500);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+    		}
+    	}
+    }
+    
     public static void deployServer(Network network, ServerType type, List<ServerMetadata> metadata) {
+    	instance.launchQueue.add(new LaunchData(network, type, metadata));
+    }
+
+    private static void deployServer(LaunchData data) {
         Credentials mongoCreds = MineCloud.instance().mongo().credentials();
         Credentials redisCreds = MineCloud.instance().redis().credentials();
         ServerRepository repository = MineCloud.instance().mongo().repositoryBy(Server.class);
         Server server = new Server();
 
-        server.setType(type);
-        server.setNumber(repository.nextNumberFor(type));
-        server.setNetwork(network);
+        server.setType(data.type);
+        server.setNumber(repository.nextNumberFor(data.type));
+        server.setNetwork(data.network);
         server.setNode(MineCloudDaemon.instance().node());
         server.setOnlinePlayers(new ArrayList<>());
         server.setRamUsage(-1);
         server.setId(server.type().name() + server.number());
-        server.setMetadata(metadata);
+        server.setMetadata(data.metadata);
         if (PORT_COUNTER.get() >= 65535) {
         	PORT_COUNTER.set(32812);
         }
@@ -84,8 +122,8 @@ public final class Deployer {
             put("MAX_PLAYERS", String.valueOf(server.type().maxPlayers()));
 
             put("server_id", server.entityId());
-            put("DEFAULT_WORLD", type.defaultWorld().name());
-            put("DEFAULT_WORLD_VERSION", type.defaultWorld().version());
+            put("DEFAULT_WORLD", data.type.defaultWorld().name());
+            put("DEFAULT_WORLD_VERSION", data.type.defaultWorld().version());
 
             put("PORT", String.valueOf(server.port()));
             put("PRIVATE_IP", server.node().privateIp());
