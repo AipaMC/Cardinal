@@ -67,7 +67,10 @@ public final class Deployer extends Thread {
     public void run() {
     	while (true) {
     		if (!launchQueue.isEmpty()) {
-    			deployServer(launchQueue.poll());
+    		    LaunchData data = launchQueue.poll();
+    		    MineCloud.logger().log(Level.INFO, "Deploying: " + data.type.name());
+    		    MineCloud.logger().log(Level.INFO, "Queue Size: " + launchQueue.size());
+    			deployServer(data);
     		}
 			try {
 				Thread.sleep(7500);

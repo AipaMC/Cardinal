@@ -307,7 +307,7 @@ public class MineCloudDaemon {
             /* Bungee startup timeout */
             if (bungeeRepo.findOne("_id", node.publicIp()) != null) {
                 try {
-                    if ((System.currentTimeMillis() - Deployer.timeStarted("bungee")) < 40_000L && !Deployer.isRunning("bungee")) {
+                    if ((System.currentTimeMillis() - Deployer.timeStarted("bungee")) > 40_000L && !Deployer.isRunning("bungee")) {
                         bungeeRepo.deleteById(node.publicIp());
                         MineCloud.logger().info("Bungee failed to start (" + node.publicIp() + ")");
                     }
