@@ -21,6 +21,7 @@ import io.minecloud.Cached;
 import io.minecloud.MineCloud;
 import io.minecloud.MineCloudException;
 import io.minecloud.bungee.cardinal.CardinalCallback;
+import io.minecloud.bungee.cardinal.ServerStartEvent;
 import io.minecloud.db.mongo.MongoDatabase;
 import io.minecloud.db.redis.RedisDatabase;
 import io.minecloud.db.redis.msg.MessageType;
@@ -86,7 +87,7 @@ public class MineCloudPlugin extends Plugin {
         } catch (IOException ex) {
             ex.printStackTrace();
         }
-
+        
         redis.addChannel(SimpleRedisChannel.create("server-start-notif", redis)
                 .addCallback((message) ->
                     getProxy().getScheduler().schedule(this, () -> {
@@ -99,6 +100,9 @@ public class MineCloudPlugin extends Plugin {
                             Server server = mongo.repositoryBy(Server.class).findFirst(stream.readString());
 
                             addServer(server);
+                            
+                            ServerStartEvent event = new ServerStartEvent(server);
+                            getProxy().getPluginManager().callEvent(event);
                         } catch (IOException ignored) {
                         }
                     }, 1, TimeUnit.SECONDS)));

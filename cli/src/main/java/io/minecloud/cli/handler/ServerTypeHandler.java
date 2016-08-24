@@ -22,7 +22,7 @@ import io.minecloud.models.nodes.type.NodeType;
 import io.minecloud.models.plugins.Plugin;
 import io.minecloud.models.plugins.PluginType;
 import io.minecloud.models.server.World;
-import io.minecloud.models.server.type.ServerLaunchType;
+import io.minecloud.models.server.type.ServerRole;
 import io.minecloud.models.server.type.ServerType;
 
 import java.util.ArrayList;
@@ -110,16 +110,16 @@ public class ServerTypeHandler extends AbstractHandler {
     }
     
     @Command
-    public String launchType(@Param(name = "value") String launchType) {
-        ServerLaunchType type = ServerLaunchType.valueOf(launchType.toUpperCase());
+    public String serverRole(@Param(name = "value") String serverRole) {
+        ServerRole type = ServerRole.valueOf(serverRole.toUpperCase());
 
         if (type == null) {
-            return "No server type of name " + launchType + " was found. " +
-                    "Available server types: players, available";
+            return "No server role of name " + serverRole + " was found. " +
+                    "Available server types: lobby, game";
         }
 
-        this.type.setLaunchType(type);
-        return "Set server launch type to " + launchType + " successfully";
+        this.type.setServerRole(type);
+        return "Set server role to " + serverRole + " successfully";
     }
 
     @Command

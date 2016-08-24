@@ -59,10 +59,12 @@ public class ServerType extends MongoEntity {
     private boolean randomDefaultWorld = false; //False is the default value
     /** Determines when this server type needs more instances */
     @Setter
-    private ServerLaunchType launchType = ServerLaunchType.PLAYERS; //Default value
+    private ServerRole serverRole = ServerRole.LOBBY; //Default value
     /** Simple abbreviation for the server type to be used in display */
     @Setter
     private String abbreviation = "";
+    @Setter
+    private int minPlayers = -1;
 
     public String name() {
         return entityId();
@@ -70,6 +72,10 @@ public class ServerType extends MongoEntity {
     
     public String nameAbv() {
         return abbreviation;
+    }
+    
+    public int minPlayers() {
+        return minPlayers == -1 ? maxPlayers : minPlayers;
     }
 
     public int maxPlayers() {
@@ -96,8 +102,8 @@ public class ServerType extends MongoEntity {
         return randomDefaultWorld;
     }
     
-    public ServerLaunchType launchType() {
-        return launchType;
+    public ServerRole serverRole() {
+        return serverRole;
     }
 
     public List<Plugin> plugins() {

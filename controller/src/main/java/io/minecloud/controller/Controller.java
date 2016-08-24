@@ -29,7 +29,7 @@ import io.minecloud.models.network.server.ServerNetworkMetadata;
 import io.minecloud.models.nodes.Node;
 import io.minecloud.models.server.Server;
 import io.minecloud.models.server.ServerRepository;
-import io.minecloud.models.server.type.ServerLaunchType;
+import io.minecloud.models.server.type.ServerRole;
 import io.minecloud.models.server.type.ServerType;
 
 import java.io.File;
@@ -106,7 +106,7 @@ public class Controller {
                     
                     int neededServers = 0;
                     //Calculate needed servers from players online
-                    if (metadata.type().launchType() == ServerLaunchType.PLAYERS) {
+                    if (metadata.type().serverRole() == ServerRole.LOBBY) {
                         int space = metadata.type().maxPlayers() * serversOnline;
                         int onlinePlayers = servers.stream()
                                 .flatMapToInt((s) -> IntStream.of(s.onlinePlayers().size()))
@@ -122,7 +122,7 @@ public class Controller {
                         
                         neededServers = requiredServers + scaledServers;
                     //Or from the amount of servers that are available for play
-                    } else if (metadata.type().launchType() == ServerLaunchType.AVAILABLE) {
+                    } else if (metadata.type().serverRole() == ServerRole.GAME) {
                         int availableServers = network.serversAvailable(metadata.type());
                         //No servers available? Launch one!
                         neededServers = Math.max(0, metadata.minimumAmount() - availableServers);
@@ -134,17 +134,15 @@ public class Controller {
                     }
 
                     if (neededServers > 0) {
-                        IntStream.range(0, neededServers)
-                        .forEach((i) -> {
+                        for (int i=0; i < neededServers; i++) {
                             try {
                                 Thread.sleep(200L);
-                            } catch (InterruptedException ignored) {
-                            }
+                            } catch (InterruptedException ignored) {}
                             
                             ServerType type = metadata.type();
                             MineCloud.logger().info("Sent deploy message to " + network.deployServer(type).name() +
                                     " for server type " + type.name() + " on " + network.name());
-                        });
+                        }
                     } else if (metadata.type().defaultServer() && serversOnline > metadata.minimumAmount()){
                         //Check for empty default servers to remove
                         for (Server server : servers) {

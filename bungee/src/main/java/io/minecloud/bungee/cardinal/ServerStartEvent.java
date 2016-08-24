@@ -13,21 +13,17 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
-package io.minecloud.models.server.type;
+package io.minecloud.bungee.cardinal;
 
-/**
- * Determines when the controller should launch new
- * servers
- */
-public enum ServerLaunchType {
-    /** 
-     * Spawn new servers when a player count 
-     * threshold has been met (right now, 75%) 
-     */
-    PLAYERS,
-    /** 
-     * Spawn new servers when there aren't any
-     * tagged as "joinable"
-     */
-    AVAILABLE;
+import io.minecloud.models.server.Server;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import net.md_5.bungee.api.plugin.Event;
+
+@Data
+@EqualsAndHashCode(callSuper=false)
+public class ServerStartEvent extends Event {
+    
+    private final Server server;
+
 }
