@@ -76,6 +76,16 @@ public class ServerTypeHandler extends AbstractHandler {
         type.setMaxPlayers(max);
         return "Set maximum amount of players to " + max + " successfully";
     }
+    
+    @Command
+    public String minPlayers(@Param(name = "min-players") int min) {
+        if (min < 0) {
+            return "Invalid min players!";
+        }
+
+        type.setMinPlayers(min);
+        return "Set minimum amount of players to " + min + " successfully";
+    }
 
     @Command
     public String preferredNode(@Param(name = "node-type-name") String nodeType) {
