@@ -17,5 +17,6 @@ package io.minecloud.models.plugins;
 
 public enum PluginServerType {
     BUNGEE,
-    SERVER
+    SERVER,
+    UNIVERSAL
 }

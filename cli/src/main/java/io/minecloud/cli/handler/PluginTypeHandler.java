@@ -47,7 +47,7 @@ public class PluginTypeHandler extends AbstractHandler {
 
         if (type == null) {
             return "No server type of name " + name + " was found. " +
-                    "Available server types: bungee, server";
+                    "Available server types: bungee, server, universal";
         }
 
         this.type.setType(type); // typee asf

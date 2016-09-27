@@ -20,6 +20,8 @@ import io.minecloud.models.external.ExternalServer;
 import io.minecloud.models.external.ExternalServerRepository;
 import io.minecloud.models.server.Server;
 import io.minecloud.models.server.ServerRepository;
+import lombok.RequiredArgsConstructor;
+import net.md_5.bungee.api.AbstractReconnectHandler;
 import net.md_5.bungee.api.ServerPing;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -30,16 +32,17 @@ import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 
 import java.util.Collection;
+import java.util.concurrent.ConcurrentHashMap;
 
+@RequiredArgsConstructor
 public class MineCloudListener implements Listener {
+    
+    private final MineCloudPlugin plugin;
+    
+    private final ConcurrentHashMap<String, String> motd = new ConcurrentHashMap<>();
     private long lastUpdated = 0;
     private int onlinePlayers = -1;
     private int maxOnline = -1;
-    private MineCloudPlugin plugin;
-
-    MineCloudListener(MineCloudPlugin plugin) {
-        this.plugin = plugin;
-    }
 
     @EventHandler
     public void onPing(ProxyPingEvent event) {
@@ -48,7 +51,9 @@ public class MineCloudListener implements Listener {
         if (ping == null) {
             ping = new ServerPing();
         }
-
+        
+        ServerInfo forced = AbstractReconnectHandler.getForcedHost(event.getConnection());
+        
         if (onlinePlayers == -1 || (System.currentTimeMillis() - lastUpdated) >= 5000L) {
             Bungee bungee = plugin.bungee();
 
@@ -67,12 +72,12 @@ public class MineCloudListener implements Listener {
             int online = 0;
             for (Server server : servers) {
                 online += server.onlinePlayers().size();
-                //max += server.type().maxPlayers();
             }
             
             for (ExternalServer server : externalServers) {
                 online += server.onlinePlayers().size();
-                //max += server.type().maxPlayers();
+                //Cache MOTDs
+                motd.put(server.name(), server.type().motd());
             }
 
             onlinePlayers = online;
@@ -81,6 +86,10 @@ public class MineCloudListener implements Listener {
         }
 
         ping.setPlayers(new ServerPing.Players(maxOnline, onlinePlayers, ping.getPlayers().getSample()));
+        //MOTD
+        if (forced != null && motd.containsKey(forced.getName())) {
+            ping.setDescription(motd.get(forced.getName()));
+        }
 
         event.setResponse(ping);
     }
