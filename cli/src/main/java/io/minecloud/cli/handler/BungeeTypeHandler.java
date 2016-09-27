@@ -55,16 +55,22 @@ public class BungeeTypeHandler extends AbstractHandler {
 
     @Command
     public String preferredNode(@Param(name = "node-type-name") String nodeType) {
-        NodeType type = MineCloud.instance().mongo()
+        NodeType node = MineCloud.instance().mongo()
                 .repositoryBy(NodeType.class)
                 .findFirst(nodeType);
 
-        if (type == null) {
+        if (node == null) {
             return "No found node types by the name of " + nodeType;
         }
 
-        this.type.setPreferredNode(type);
+        type.setPreferredNode(node);
         return "Set preferred node type to " + nodeType;
+    }
+    
+    @Command
+    public String motd(@Param(name = "motd") String motd) {
+        type.setMotd(motd);
+        return "Set primary motd to " + motd;
     }
 
     @Command
@@ -156,6 +162,7 @@ public class BungeeTypeHandler extends AbstractHandler {
         list.add("- Dedicated Ram: " + type.dedicatedRam() + "MB");
         list.add("- Preferred Node: " + type.preferredNode().name());
         list.add("- Plugins: " + formatPlugins(type.plugins()));
+        list.add("- MOTD: " + type.motd());
         list.add("===========================================");
         list.add("If you're ready to go, type 'push'.");
         return list;

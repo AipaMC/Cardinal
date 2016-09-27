@@ -34,6 +34,8 @@ public class BungeeType extends MongoEntity {
     private NodeType preferredNode;
     @Setter
     private List<Plugin> plugins;
+    @Setter
+    private String motd;
 
     public List<Plugin> plugins() {
         if (plugins == null) {
@@ -53,6 +55,10 @@ public class BungeeType extends MongoEntity {
 
     public NodeType preferredNode() {
         return preferredNode;
+    }
+    
+    public String motd() {
+        return motd;
     }
 
     public void setName(String name) {

@@ -40,6 +40,7 @@ public class MineCloudListener implements Listener {
     private final MineCloudPlugin plugin;
     
     private final ConcurrentHashMap<String, String> motd = new ConcurrentHashMap<>();
+    private String primaryMotd;
     private long lastUpdated = 0;
     private int onlinePlayers = -1;
     private int maxOnline = -1;
@@ -57,9 +58,11 @@ public class MineCloudListener implements Listener {
         if (onlinePlayers == -1 || (System.currentTimeMillis() - lastUpdated) >= 5000L) {
             Bungee bungee = plugin.bungee();
 
-            if (bungee == null)
+            if (bungee == null) {
                 return;
-
+            }
+            primaryMotd = bungee.type().motd();
+            
             ServerRepository repository = plugin.mongo.repositoryBy(Server.class);
             Collection<Server> servers = repository.find(repository.createQuery().field("network").equal(bungee.network()))
                     .asList();
@@ -89,6 +92,8 @@ public class MineCloudListener implements Listener {
         //MOTD
         if (forced != null && motd.containsKey(forced.getName())) {
             ping.setDescription(motd.get(forced.getName()));
+        } else if (primaryMotd != null && !primaryMotd.isEmpty()) {
+            ping.setDescription(primaryMotd);
         }
 
         event.setResponse(ping);
