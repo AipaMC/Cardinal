@@ -80,7 +80,9 @@ public class MineCloudListener implements Listener {
             for (ExternalServer server : externalServers) {
                 online += server.onlinePlayers().size();
                 //Cache MOTDs
-                motd.put(server.name(), server.type().motd());
+                if (server.name() != null && server.type().motd() != null) {
+                    motd.put(server.name(), server.type().motd());
+                }
             }
 
             onlinePlayers = online;
