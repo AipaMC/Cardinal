@@ -30,7 +30,7 @@ public class ExternalServerType extends MongoEntity {
     @Setter
     private int port;
     @Setter
-    private String motd;
+    private String motd = "";
     
     public String name() {
         return entityId();
